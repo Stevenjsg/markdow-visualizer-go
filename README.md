@@ -98,9 +98,7 @@ Detalle completo en [`docs/roadmap.md`](./docs/roadmap.md).
 
 Proyecto personal de aprendizaje — no se esperan contribuciones externas por ahora, pero issues y sugerencias son bienvenidas.
 
-## 📄 Licencia
 
-MIT — ajusta esta sección si prefieres otra licencia. Añade un archivo `LICENSE` en la raíz del repo.
 
 ## 👤 Autor
 
