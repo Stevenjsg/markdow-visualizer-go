@@ -1,7 +1,7 @@
 package main
 
-import "fmt"
+import "main/practicas"
 
 func main() {
-	fmt.Println("Hello, World!")
+	practicas.Split1()
 }
