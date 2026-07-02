@@ -1,5 +1,31 @@
+/*## Sprint 2 — Fundamentos de Go II
+
+**Objetivo:** entender lo que hace a Go diferente: errores explícitos e interfaces.
+
+**Qué aprendes:**
+- **Manejo de errores sin try/catch.** En Go no hay excepciones: cada función que puede fallar devuelve un `error` y se comprueba `if err != nil` a mano.
+- **Structs y métodos** (struct = forma de un objeto, método = función con "receiver"; sin clases ni herencia, todo es composición)
+- **Interfaces** (tipado por comportamiento, implementación implícita: sin `implements`)
+- `defer`, `panic`/`recover` (lo básico)
+- Testing nativo con el paquete `testing`
+
+**Tareas:**
+1. Refactorizar la CLI del Sprint 1 en un struct `MarkdownStats` con métodos
+2. Crear errores personalizados (`errors.New`, `fmt.Errorf`)
+3. Escribir 3-4 tests con `go test`
+4. Ejercicios de interfaces en Go by Example
+
+**Entregable:** paquete Go reutilizable y testeado, sin UI todavía.*/
+
 // Package practicas contains the implementation for this package.
 package practicas
+
+import (
+	"bufio"
+	"fmt"
+	"strings"
+	"unicode/utf8"
+)
 
 type MarkdownStats struct {
 	TotalLines      int
@@ -7,12 +33,25 @@ type MarkdownStats struct {
 	TotalCharacters int
 }
 
-func (ms *MarkdownStats) CountLines(content string) int {
+func CountLines(content string) int {
+	if content == "" {
+		return 0
+	}
 	lines := 0
-	for _, char := range content {
-		if char == '\n' {
-			lines++
-		}
+	scanner := bufio.NewScanner(strings.NewReader(content))
+	scanner.Split(bufio.ScanLines)
+	for scanner.Scan() {
+		lines++
+	}
+	if err := scanner.Err(); err != nil {
+		fmt.Println("Error occurred while scanning the file.")
+		return 0
 	}
 	return lines
+}
+
+func (ms *MarkdownStats) Analyze(content string) {
+	ms.TotalCharacters = utf8.RuneCountInString(content)
+	ms.TotalWords = len(strings.Fields(content))
+	ms.TotalLines = CountLines(content)
 }
