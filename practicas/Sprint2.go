@@ -40,9 +40,18 @@ type MarkdownFile struct {
 	PathAbsolute string
 }
 
+var (
+	ErrContentEmpty = errors.New("content is empty")
+	ErrCountLines   = errors.New("error counting lines")
+	ErrFileNotFound = errors.New("file not found")
+	ErrInvalidArgs  = errors.New("invalid arguments")
+	ErrInvalidPath  = errors.New("invalid path")
+	ErrReadFile     = errors.New("error reading file")
+)
+
 func ValidateArgs(args []string) error {
 	if len(args) < 2 {
-		return fmt.Errorf("no file path provided")
+		return ErrInvalidArgs
 	}
 	path := args[1]
 	if err := ValidatePath(path); err != nil {
@@ -53,27 +62,27 @@ func ValidateArgs(args []string) error {
 
 func ValidatePath(path string) error {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return fmt.Errorf("file does not exist: %s", path)
+		return ErrFileNotFound
 	}
 	return nil
 }
 
-func (mf *MarkdownFile) SetMarkdownFile(filePath string) {
+func (mf *MarkdownFile) SetMarkdownFile(filePath string) error {
 	pathAbs, err := filepath.Abs(filePath)
 	if err != nil {
-		fmt.Printf("Error getting absolute path: %v\n", err)
-		return
+		return ErrInvalidPath
 	}
 	filename := strings.TrimSuffix(filepath.Base(pathAbs), filepath.Ext(pathAbs))
 
 	mf.PathAbsolute = pathAbs
 	mf.FileName = filename
+	return nil
 }
 
 func GetContentFromFile(filePath string) (string, error) {
 	content, err := os.ReadFile(filePath)
 	if err != nil {
-		return "", fmt.Errorf("failed to read file: %w", err)
+		return "", ErrReadFile
 	}
 
 	return string(content), nil
@@ -81,7 +90,7 @@ func GetContentFromFile(filePath string) (string, error) {
 
 func CountLines(content string) (int, error) {
 	if content == "" {
-		return 0, errors.New("content is empty")
+		return 0, ErrContentEmpty
 	}
 	lines := 0
 	scanner := bufio.NewScanner(strings.NewReader(content))
@@ -96,11 +105,14 @@ func CountLines(content string) (int, error) {
 }
 
 func (ms *MarkdownStats) Analyze(content string) error {
+	if content == "" {
+		return ErrContentEmpty
+	}
 	ms.TotalCharacters = utf8.RuneCountInString(content)
 	ms.TotalWords = len(strings.Fields(content))
 	lines, err := CountLines(content)
 	if err != nil {
-		return fmt.Errorf("error analyzing content: %w", err)
+		return ErrCountLines
 	}
 	ms.TotalLines = lines
 	return nil
