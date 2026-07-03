@@ -1,3 +1,24 @@
+/*
+## Sprint 1 — Fundamentos de Go I
+
+**Objetivo:** dejar de "buscar" sintaxis de TS y empezar a pensar en Go.
+
+**Qué aprendes (con analogía a TS):**
+- Variables y tipado estático explícito (`var x int`, `:=` para inferencia)
+- Funciones con **múltiples valores de retorno** (`func dividir(a, b int) (int, error)`) — no existe en TS, es la base del manejo de errores en Go
+- Control de flujo: solo `if`, `for` (no hay `while`) y `switch`, sin paréntesis
+- Slices y maps (como arrays/objects, con sus propias reglas de memoria)
+- Paquetes y módulos (`go.mod` ≈ `package.json`)
+
+**Tareas:**
+1. Instalar Go + extensión de Go para VS Code
+2. Completar el **Tour of Go** oficial (interactivo, ~3-4h)
+3. Ejercicios en [Go by Example](https://gobyexample.com/): funciones, slices, maps, strings
+4. Mini-proyecto: CLI que lea un archivo `.md` y muestre conteo de líneas/palabras/caracteres
+
+**Entregable:** `go run main.go archivo.md` imprime estadísticas del archivo.
+*/
+
 package practicas
 
 import (

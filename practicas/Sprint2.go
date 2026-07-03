@@ -22,7 +22,10 @@ package practicas
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 	"unicode/utf8"
 )
@@ -32,10 +35,53 @@ type MarkdownStats struct {
 	TotalWords      int
 	TotalCharacters int
 }
+type MarkdownFile struct {
+	FileName     string
+	PathAbsolute string
+}
 
-func CountLines(content string) int {
+func ValidateArgs(args []string) error {
+	if len(args) < 2 {
+		return fmt.Errorf("no file path provided")
+	}
+	path := args[1]
+	if err := ValidatePath(path); err != nil {
+		return err
+	}
+	return nil
+}
+
+func ValidatePath(path string) error {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return fmt.Errorf("file does not exist: %s", path)
+	}
+	return nil
+}
+
+func (mf *MarkdownFile) SetMarkdownFile(filePath string) {
+	pathAbs, err := filepath.Abs(filePath)
+	if err != nil {
+		fmt.Printf("Error getting absolute path: %v\n", err)
+		return
+	}
+	filename := strings.TrimSuffix(filepath.Base(pathAbs), filepath.Ext(pathAbs))
+
+	mf.PathAbsolute = pathAbs
+	mf.FileName = filename
+}
+
+func GetContentFromFile(filePath string) (string, error) {
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		return "", fmt.Errorf("failed to read file: %w", err)
+	}
+
+	return string(content), nil
+}
+
+func CountLines(content string) (int, error) {
 	if content == "" {
-		return 0
+		return 0, errors.New("content is empty")
 	}
 	lines := 0
 	scanner := bufio.NewScanner(strings.NewReader(content))
@@ -44,14 +90,18 @@ func CountLines(content string) int {
 		lines++
 	}
 	if err := scanner.Err(); err != nil {
-		fmt.Println("Error occurred while scanning the file.")
-		return 0
+		return 0, fmt.Errorf("error scanning file: %w", err)
 	}
-	return lines
+	return lines, nil
 }
 
-func (ms *MarkdownStats) Analyze(content string) {
+func (ms *MarkdownStats) Analyze(content string) error {
 	ms.TotalCharacters = utf8.RuneCountInString(content)
 	ms.TotalWords = len(strings.Fields(content))
-	ms.TotalLines = CountLines(content)
+	lines, err := CountLines(content)
+	if err != nil {
+		return fmt.Errorf("error analyzing content: %w", err)
+	}
+	ms.TotalLines = lines
+	return nil
 }
