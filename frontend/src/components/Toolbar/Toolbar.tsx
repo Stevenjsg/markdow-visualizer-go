@@ -23,10 +23,24 @@ function Toolbar({ onOpen, onSave, onSaveAs }: ToolbarProps) {
     <header className="flex items-center gap-1 border-b border-neutral-200 px-3 py-2 dark:border-neutral-700">
       <span className="mr-2 text-sm font-semibold tracking-wide">MarkView</span>
 
-      <button type="button" className={buttonClass} onClick={onOpen} aria-label="Abrir archivo">
+      <button
+        type="button"
+        className={buttonClass}
+        onClick={onOpen}
+        aria-label="Abrir archivo"
+        aria-keyshortcuts="Control+O Meta+O"
+        title="Abrir (Ctrl/Cmd+O)"
+      >
         📂 Abrir
       </button>
-      <button type="button" className={buttonClass} onClick={onSave} aria-label="Guardar archivo">
+      <button
+        type="button"
+        className={buttonClass}
+        onClick={onSave}
+        aria-label="Guardar archivo"
+        aria-keyshortcuts="Control+S Meta+S"
+        title="Guardar (Ctrl/Cmd+S)"
+      >
         💾 Guardar
       </button>
       <button
@@ -34,6 +48,8 @@ function Toolbar({ onOpen, onSave, onSaveAs }: ToolbarProps) {
         className={buttonClass}
         onClick={onSaveAs}
         aria-label="Guardar como archivo nuevo"
+        aria-keyshortcuts="Control+Shift+S Meta+Shift+S"
+        title="Guardar como… (Ctrl/Cmd+Shift+S)"
       >
         📄 Guardar como…
       </button>
@@ -59,6 +75,7 @@ function Toolbar({ onOpen, onSave, onSaveAs }: ToolbarProps) {
           className={buttonClass}
           onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
           aria-label="Alternar tema claro/oscuro"
+          title={theme === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
         >
           {theme === 'dark' ? '🌙' : '☀️'}
         </button>

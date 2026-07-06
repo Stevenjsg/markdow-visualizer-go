@@ -46,6 +46,15 @@ function App() {
     window.addEventListener('pointerup', onUp, { once: true });
   };
 
+  // P5.5: el divisor también se maneja con el teclado (flechas ±5%).
+  const onDividerKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const step = 0.05;
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    e.preventDefault();
+    const s = useDocumentStore.getState();
+    s.setSplitRatio(s.splitRatio + (e.key === 'ArrowLeft' ? -step : step));
+  };
+
   // Mantiene store.html sincronizado con store.content vía backend (RF1).
   useDebouncedMarkdown();
 
@@ -94,7 +103,6 @@ function App() {
       .finally(() => {
         settingsLoaded.current = true;
       });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- solo al montar
   }, []);
 
   // P5.3: recuerda el último archivo abierto/guardado para la próxima sesión.
@@ -206,9 +214,15 @@ function App() {
           <div
             role="separator"
             aria-orientation="vertical"
-            aria-label="Redimensionar paneles"
+            aria-label="Redimensionar paneles (flechas izquierda/derecha)"
+            aria-valuemin={20}
+            aria-valuemax={80}
+            aria-valuenow={Math.round(splitRatio * 100)}
+            tabIndex={0}
+            title="Arrastra o usa las flechas para redimensionar"
             onPointerDown={onDividerPointerDown}
-            className="w-1 shrink-0 cursor-col-resize bg-neutral-200 transition-colors hover:bg-sky-500 dark:bg-neutral-700 dark:hover:bg-sky-500"
+            onKeyDown={onDividerKeyDown}
+            className="w-1 shrink-0 cursor-col-resize bg-neutral-200 transition-colors hover:bg-sky-500 focus-visible:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500 dark:bg-neutral-700 dark:hover:bg-sky-500"
           />
           <section aria-label="Vista previa" className="min-w-0 flex-1 overflow-auto">
             <Preview />
