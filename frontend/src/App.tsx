@@ -23,6 +23,25 @@ import { useDocumentStore } from './store/documentStore';
 function App() {
   const theme = useDocumentStore((s) => s.theme);
   const isDirty = useDocumentStore((s) => s.isDirty);
+  const splitRatio = useDocumentStore((s) => s.splitRatio);
+
+  // P5.2: arrastre del divisor Editor|Preview. La proporción vive en el
+  // store (clampada al 20–80%) y se aplica como ancho del panel izquierdo.
+  const mainRef = useRef<HTMLElement | null>(null);
+  const onDividerPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const main = mainRef.current;
+    if (!main) return;
+
+    const onMove = (ev: PointerEvent) => {
+      const rect = main.getBoundingClientRect();
+      if (rect.width === 0) return;
+      useDocumentStore.getState().setSplitRatio((ev.clientX - rect.left) / rect.width);
+    };
+    const onUp = () => window.removeEventListener('pointermove', onMove);
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp, { once: true });
+  };
 
   // Mantiene store.html sincronizado con store.content vía backend (RF1).
   useDebouncedMarkdown();
@@ -129,14 +148,22 @@ function App() {
       <div className="flex h-screen flex-col bg-white text-neutral-900 transition-colors dark:bg-neutral-900 dark:text-neutral-100">
         <Toolbar onOpen={handleOpen} onSave={handleSave} onSaveAs={handleSaveAs} />
 
-        <main className="flex min-h-0 flex-1">
+        <main ref={mainRef} className="flex min-h-0 flex-1">
           <section
             aria-label="Editor"
-            className="flex-1 overflow-auto border-r border-neutral-200 dark:border-neutral-700"
+            style={{ width: `${splitRatio * 100}%` }}
+            className="min-w-0 overflow-auto"
           >
             <Editor />
           </section>
-          <section aria-label="Vista previa" className="flex-1 overflow-auto">
+          <div
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Redimensionar paneles"
+            onPointerDown={onDividerPointerDown}
+            className="w-1 shrink-0 cursor-col-resize bg-neutral-200 transition-colors hover:bg-sky-500 dark:bg-neutral-700 dark:hover:bg-sky-500"
+          />
+          <section aria-label="Vista previa" className="min-w-0 flex-1 overflow-auto">
             <Preview />
           </section>
         </main>
