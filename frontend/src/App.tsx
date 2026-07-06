@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Editor from './components/Editor/Editor';
+import Preview from './components/Preview/Preview';
 
 // Layout base (P3.1): Toolbar arriba y dos paneles Editor | Preview.
 // El tema se conmuta con la clase `dark` en el wrapper (darkMode: 'class');
@@ -31,8 +32,7 @@ function App() {
             <Editor />
           </section>
           <section aria-label="Vista previa" className="flex-1 overflow-auto">
-            {/* Preview (P3.4) */}
-            <p className="p-4 text-sm text-neutral-400 dark:text-neutral-500">Vista previa…</p>
+            <Preview />
           </section>
         </main>
       </div>
