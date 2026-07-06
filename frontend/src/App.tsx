@@ -15,6 +15,7 @@ import Editor from './components/Editor/Editor';
 import Preview from './components/Preview/Preview';
 import Toolbar from './components/Toolbar/Toolbar';
 import { useDebouncedMarkdown } from './hooks/useDebouncedMarkdown';
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useDocumentStore } from './store/documentStore';
 
 // Raíz de la app: Toolbar + Editor | Preview (SDD §5). El tema vive en el
@@ -105,6 +106,9 @@ function App() {
       console.error('No se pudo guardar el archivo:', err); // P5.4: feedback visual
     }
   };
+
+  // P4.6: atajos Ctrl/Cmd+S, Ctrl/Cmd+Shift+S y Ctrl/Cmd+O.
+  useKeyboardShortcuts({ onOpen: handleOpen, onSave: handleSave, onSaveAs: handleSaveAs });
 
   // RF4: acciones del modal de cierre. Guardar solo cierra si el guardado
   // realmente limpió el documento (p. ej. no se canceló el "Guardar como").
