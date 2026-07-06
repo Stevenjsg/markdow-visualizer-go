@@ -1,33 +1,36 @@
 package main
 
 import (
-	"fmt"
-	"os"
+	"embed"
 
-	"github.com/Stevenjsg/markdow-visualizer-go/practicas"
+	"github.com/wailsapp/wails/v2"
+	"github.com/wailsapp/wails/v2/pkg/options"
+	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 )
 
+//go:embed all:frontend/dist
+var assets embed.FS
+
 func main() {
-	Sprint2 := practicas.MarkdownStats{}
-	Sprint2File := practicas.MarkdownFile{}
+	// Create an instance of the app structure
+	app := NewApp()
 
-	args := os.Args
-	if err := practicas.ValidateArgs(args); err != nil {
-		fmt.Printf("Error: %v\n", err)
-		os.Exit(1)
-	}
-	if err := practicas.ValidatePath(args[1]); err != nil {
-		fmt.Printf("Error: %v\n", err)
-		os.Exit(1)
-	}
-	Sprint2File.SetMarkdownFile(args[1])
-	contente, err := practicas.GetContentFromFile(args[1])
+	// Create application with options
+	err := wails.Run(&options.App{
+		Title:  "MarkView",
+		Width:  1024,
+		Height: 768,
+		AssetServer: &assetserver.Options{
+			Assets: assets,
+		},
+		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
+		OnStartup:        app.startup,
+		Bind: []interface{}{
+			app,
+		},
+	})
+
 	if err != nil {
-		fmt.Printf("Error: %v\n", err)
-		os.Exit(1)
+		println("Error:", err.Error())
 	}
-
-	Sprint2.Analyze(contente)
-	fmt.Println(Sprint2File)
-	fmt.Println(Sprint2)
 }
