@@ -1,32 +1,26 @@
-import { useState } from 'react';
 import Editor from './components/Editor/Editor';
 import Preview from './components/Preview/Preview';
+import Toolbar from './components/Toolbar/Toolbar';
 import { useDebouncedMarkdown } from './hooks/useDebouncedMarkdown';
+import { useDocumentStore } from './store/documentStore';
 
-// Layout base (P3.1): Toolbar arriba y dos paneles Editor | Preview.
-// El tema se conmuta con la clase `dark` en el wrapper (darkMode: 'class');
-// la persistencia llega en RF5 (P4.5) y los componentes reales en P3.3-P3.6.
+// Raíz de la app: Toolbar + Editor | Preview (SDD §5). El tema vive en el
+// store (theme) y se aplica con la clase `dark` en el wrapper.
 function App() {
-  const [dark, setDark] = useState(true);
+  const theme = useDocumentStore((s) => s.theme);
 
   // Mantiene store.html sincronizado con store.content vía backend (RF1).
   useDebouncedMarkdown();
 
+  // Stubs de P3.6: el cableado real a los bindings de Wails llega en Fase 4.
+  const handleOpen = () => console.log('TODO(P4.2): abrir archivo');
+  const handleSave = () => console.log('TODO(P4.3): guardar archivo');
+  const handleSaveAs = () => console.log('TODO(P4.3): guardar como…');
+
   return (
-    <div className={dark ? 'dark' : ''}>
+    <div className={theme === 'dark' ? 'dark' : ''}>
       <div className="flex h-screen flex-col bg-white text-neutral-900 transition-colors dark:bg-neutral-900 dark:text-neutral-100">
-        <header className="flex items-center gap-2 border-b border-neutral-200 px-3 py-2 dark:border-neutral-700">
-          <span className="text-sm font-semibold tracking-wide">MarkView</span>
-          {/* Toolbar real en P3.6; toggle temporal para verificar la paleta. */}
-          <button
-            type="button"
-            onClick={() => setDark((d) => !d)}
-            aria-label="Alternar tema claro/oscuro"
-            className="ml-auto rounded px-2 py-1 text-sm hover:bg-neutral-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500 dark:hover:bg-neutral-700"
-          >
-            {dark ? '🌙 Oscuro' : '☀️ Claro'}
-          </button>
-        </header>
+        <Toolbar onOpen={handleOpen} onSave={handleSave} onSaveAs={handleSaveAs} />
 
         <main className="flex min-h-0 flex-1">
           <section
