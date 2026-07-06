@@ -21,6 +21,8 @@ function App() {
                 <input id="name" className="input" onChange={updateName} autoComplete="off" name="input" type="text"/>
                 <button className="btn" onClick={greet}>Greet</button>
             </div>
+            {/* Verificación temporal de P1.3: si esto se ve en verde, Tailwind compila. */}
+            <p className="mt-4 text-sm font-semibold text-emerald-400">Tailwind CSS activo ✓</p>
         </div>
     )
 }
