@@ -69,6 +69,19 @@ wails dev
 
 `wails dev` levanta la app en modo desarrollo con hot-reload tanto del frontend como del backend Go.
 
+### Bindings Go ↔ frontend
+
+Los bindings TypeScript de `frontend/wailsjs/` son **autogenerados — no editarlos a mano**.
+Se regeneran automáticamente al correr `wails dev` (o `wails build`), y también se pueden
+regenerar manualmente con:
+
+```bash
+wails generate module
+```
+
+Durante `wails dev` puedes abrir `http://localhost:34115` en un navegador para usar la app
+con los bindings activos (útil para depurar con devtools).
+
 ### Build de producción
 
 ```bash
