@@ -9,8 +9,9 @@ function Preview() {
     <div
       aria-label="Vista previa renderizada"
       className="prose prose-neutral h-full max-w-none p-4 dark:prose-invert prose-pre:bg-neutral-100 prose-pre:text-neutral-800 dark:prose-pre:bg-neutral-800 dark:prose-pre:text-neutral-100"
-      // TODO(P4.7): este HTML llega del backend SIN sanear. No asumir que es
-      // seguro: integrar bluemonday en el pipeline antes de cerrar RF1.
+      // Seguridad (P4.7): el HTML llega saneado desde el backend — goldmark
+      // sin WithUnsafe + bluemonday (UGCPolicy ampliada para GFM) en
+      // internal/markdown. Ver tests TestRenderSanitizesXSS.
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );
