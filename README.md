@@ -88,7 +88,19 @@ con los bindings activos (útil para depurar con devtools).
 wails build
 ```
 
-El ejecutable se genera en `build/bin/`.
+El ejecutable se genera en `build/bin/` (en Windows: `build/bin/MarkView.exe`, con
+icono y metadata de versión embebidos desde `build/appicon.png` y `wails.json`).
+
+Requisitos y particularidades por plataforma:
+
+| Plataforma | Requisito de build | Nota |
+|---|---|---|
+| Windows | WebView2 Runtime (incluido en Windows 11 / instalable en 10) | `wails build` sin flags |
+| Linux | `libgtk-3-dev` y `libwebkit2gtk-4.1-dev` | en distros con WebKitGTK 4.1 (Ubuntu 24.04+): `wails build -tags webkit2_41` |
+| macOS | Xcode Command Line Tools (`xcode-select --install`) | `wails build` sin flags |
+
+El workflow de CI ([`.github/workflows/ci.yml`](./.github/workflows/ci.yml)) compila
+en las tres plataformas en cada push, para detectar problemas multiplataforma pronto.
 
 ### Lint y formato
 
