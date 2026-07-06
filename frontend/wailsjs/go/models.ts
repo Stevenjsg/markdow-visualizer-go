@@ -24,6 +24,7 @@ export namespace settings {
 	    lastOpenedFile: string;
 	    windowWidth: number;
 	    windowHeight: number;
+	    wordWrap: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new Settings(source);
@@ -35,6 +36,7 @@ export namespace settings {
 	        this.lastOpenedFile = source["lastOpenedFile"];
 	        this.windowWidth = source["windowWidth"];
 	        this.windowHeight = source["windowHeight"];
+	        this.wordWrap = source["wordWrap"];
 	    }
 	}
 

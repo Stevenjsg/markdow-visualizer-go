@@ -17,12 +17,14 @@ const settingsFileName = "settings.json"
 // appConfigDirName es la carpeta de la app dentro de os.UserConfigDir().
 const appConfigDirName = "MarkView"
 
-// Settings es el modelo de configuración persistente (tags según SDD §7).
+// Settings es el modelo de configuración persistente (tags según SDD §7,
+// ampliado con wordWrap para el ajuste de línea del editor).
 type Settings struct {
 	Theme          string `json:"theme"`
 	LastOpenedFile string `json:"lastOpenedFile"`
 	WindowWidth    int    `json:"windowWidth"`
 	WindowHeight   int    `json:"windowHeight"`
+	WordWrap       bool   `json:"wordWrap"`
 }
 
 // DefaultSettings devuelve la configuración inicial de la app.
@@ -32,6 +34,7 @@ func DefaultSettings() Settings {
 		LastOpenedFile: "",
 		WindowWidth:    1200,
 		WindowHeight:   800,
+		WordWrap:       true,
 	}
 }
 
@@ -82,7 +85,10 @@ func (s *Service) Load() (Settings, error) {
 		return DefaultSettings(), fmt.Errorf("leer settings.json: %w", err)
 	}
 
-	var cfg Settings
+	// Se deserializa SOBRE los defaults: un settings.json de una versión
+	// anterior (sin campos nuevos, p. ej. wordWrap) conserva el valor por
+	// defecto en lo ausente en lugar del valor cero.
+	cfg := DefaultSettings()
 	if err := json.Unmarshal(data, &cfg); err != nil {
 		return DefaultSettings(), nil // corrupto -> defaults, sin error
 	}

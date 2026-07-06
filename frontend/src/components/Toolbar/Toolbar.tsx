@@ -18,6 +18,8 @@ function Toolbar({ onOpen, onSave, onSaveAs }: ToolbarProps) {
   const filePath = useDocumentStore((s) => s.filePath);
   const theme = useDocumentStore((s) => s.theme);
   const setTheme = useDocumentStore((s) => s.setTheme);
+  const wordWrap = useDocumentStore((s) => s.wordWrap);
+  const setWordWrap = useDocumentStore((s) => s.setWordWrap);
 
   return (
     <header className="flex items-center gap-1 border-b border-neutral-200 px-3 py-2 dark:border-neutral-700">
@@ -70,6 +72,17 @@ function Toolbar({ onOpen, onSave, onSaveAs }: ToolbarProps) {
             </span>
           )}
         </span>
+        <button
+          type="button"
+          className={`${buttonClass} ${wordWrap ? 'bg-neutral-200 dark:bg-neutral-700' : ''}`}
+          onClick={() => setWordWrap(!wordWrap)}
+          aria-label="Ajuste de línea del editor"
+          aria-pressed={wordWrap}
+          aria-keyshortcuts="Alt+Z"
+          title={`Ajuste de línea: ${wordWrap ? 'activado' : 'desactivado'} (Alt+Z)`}
+        >
+          ⤶ Ajuste
+        </button>
         <button
           type="button"
           className={buttonClass}

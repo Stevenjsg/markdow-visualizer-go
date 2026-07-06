@@ -27,6 +27,8 @@ export interface DocumentState {
   splitRatio: number;
   /** Mensaje de estado visible en la StatusBar, o null (P5.4). */
   status: StatusMessage | null;
+  /** Ajuste de línea del editor (persistido en settings). */
+  wordWrap: boolean;
 
   setContent: (content: string) => void;
   setHtml: (html: string) => void;
@@ -35,6 +37,7 @@ export interface DocumentState {
   setTheme: (theme: Theme) => void;
   setSplitRatio: (ratio: number) => void;
   setStatus: (status: StatusMessage | null) => void;
+  setWordWrap: (wordWrap: boolean) => void;
 }
 
 // Límites del divisor: ningún panel baja del 20% del ancho.
@@ -49,6 +52,7 @@ export const useDocumentStore = create<DocumentState>()((set) => ({
   theme: 'dark',
   splitRatio: 0.5,
   status: null,
+  wordWrap: true,
 
   // Regla de negocio del estado: escribir marca el documento como sucio…
   setContent: (content) => set({ content, isDirty: true }),
@@ -59,4 +63,5 @@ export const useDocumentStore = create<DocumentState>()((set) => ({
   setTheme: (theme) => set({ theme }),
   setSplitRatio: (ratio) => set({ splitRatio: Math.min(MAX_SPLIT, Math.max(MIN_SPLIT, ratio)) }),
   setStatus: (status) => set({ status }),
+  setWordWrap: (wordWrap) => set({ wordWrap }),
 }));

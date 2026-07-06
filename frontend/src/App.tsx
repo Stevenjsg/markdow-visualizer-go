@@ -84,6 +84,7 @@ function App() {
         if (cfg.theme === 'light' || cfg.theme === 'dark') {
           useDocumentStore.getState().setTheme(cfg.theme);
         }
+        useDocumentStore.getState().setWordWrap(cfg.wordWrap);
         if (cfg.lastOpenedFile) {
           try {
             const content = await ReadFile(cfg.lastOpenedFile);
@@ -112,13 +113,14 @@ function App() {
       .catch((err: unknown) => console.error('No se pudo recordar el último archivo:', err));
   };
 
-  // RF5 (P4.5): persistir el tema cuando el usuario lo cambia.
+  // RF5 (P4.5): persistir tema y ajuste de línea cuando el usuario los cambia.
+  const wordWrap = useDocumentStore((s) => s.wordWrap);
   useEffect(() => {
     if (!settingsLoaded.current) return;
     LoadSettings()
-      .then((cfg) => SaveSettings(settings.Settings.createFrom({ ...cfg, theme })))
+      .then((cfg) => SaveSettings(settings.Settings.createFrom({ ...cfg, theme, wordWrap })))
       .catch((err: unknown) => console.error('SaveSettings falló:', err));
-  }, [theme]);
+  }, [theme, wordWrap]);
 
   // RF4 (P4.4): el backend refleja isDirty en el título de la ventana y lo
   // usa en OnBeforeClose para decidir si interceptar el cierre.

@@ -35,6 +35,7 @@ func TestSaveLoadRoundTrip(t *testing.T) {
 		LastOpenedFile: `C:\notas\readme.md`,
 		WindowWidth:    1440,
 		WindowHeight:   900,
+		WordWrap:       false, // valor no-default: debe sobrevivir el round-trip
 	}
 
 	if err := svc.Save(want); err != nil {
@@ -120,10 +121,10 @@ func TestSaveFailsWhenDirIsFile(t *testing.T) {
 	}
 }
 
-// TestLoadPartialJSONKeepsZeroValues (P6.1): un JSON válido pero incompleto
-// deja los campos ausentes en su valor cero (comportamiento documentado de
-// encoding/json); la app los trata como "sin preferencia".
-func TestLoadPartialJSONKeepsZeroValues(t *testing.T) {
+// TestLoadPartialJSONKeepsDefaults: un JSON válido pero incompleto (p. ej.
+// escrito por una versión anterior de la app) conserva los defaults en los
+// campos ausentes: se deserializa sobre DefaultSettings().
+func TestLoadPartialJSONKeepsDefaults(t *testing.T) {
 	dir := t.TempDir()
 	svc := NewServiceAt(dir)
 
@@ -136,9 +137,13 @@ func TestLoadPartialJSONKeepsZeroValues(t *testing.T) {
 		t.Fatalf("Load con JSON parcial devolvió error: %v", err)
 	}
 	if got.Theme != "light" {
-		t.Errorf("Theme = %q; se esperaba \"light\"", got.Theme)
+		t.Errorf("Theme = %q; se esperaba \"light\" (presente en el JSON)", got.Theme)
 	}
-	if got.WindowWidth != 0 || got.WindowHeight != 0 || got.LastOpenedFile != "" {
-		t.Errorf("los campos ausentes deben quedar en valor cero: %+v", got)
+	def := DefaultSettings()
+	if got.WindowWidth != def.WindowWidth || got.WindowHeight != def.WindowHeight {
+		t.Errorf("el tamaño de ventana ausente debe conservar defaults: %+v", got)
+	}
+	if got.WordWrap != def.WordWrap {
+		t.Errorf("wordWrap ausente debe conservar el default %v: %+v", def.WordWrap, got)
 	}
 }
