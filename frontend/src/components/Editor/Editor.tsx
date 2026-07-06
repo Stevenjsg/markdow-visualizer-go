@@ -1,24 +1,35 @@
-import { type ChangeEvent } from 'react';
+import { markdown as markdownLang, markdownLanguage } from '@codemirror/lang-markdown';
+import CodeMirror from '@uiw/react-codemirror';
+import { useCallback } from 'react';
 import { useDocumentStore } from '../../store/documentStore';
 
-// Editor de texto plano (paso intermedio de P3.3).
-// Contrato del componente: lee y escribe store.content, nada más. Gracias a
-// eso CodeMirror (P5.1) podrá sustituir este textarea sin tocar el resto.
+// Editor con CodeMirror 6 y resaltado de Markdown (P5.1).
+// Mantiene el contrato de P3.3 — lee y escribe store.content — por lo que el
+// resto de la app no cambió al sustituir el textarea.
 function Editor() {
   const content = useDocumentStore((s) => s.content);
-  const setContent = useDocumentStore((s) => s.setContent);
+  const theme = useDocumentStore((s) => s.theme);
 
-  const onChange = (e: ChangeEvent<HTMLTextAreaElement>) => setContent(e.target.value);
+  // onChange solo se dispara con ediciones del usuario: los cambios
+  // programáticos de `value` (abrir archivo) no lo invocan, así que no
+  // ensucian el documento recién abierto.
+  const onChange = useCallback((value: string) => {
+    useDocumentStore.getState().setContent(value);
+  }, []);
 
   return (
-    <textarea
-      value={content}
-      onChange={onChange}
-      aria-label="Editor de Markdown"
-      spellCheck={false}
-      placeholder="Escribe tu Markdown aquí…"
-      className="h-full w-full resize-none bg-transparent p-4 font-mono text-sm leading-relaxed text-neutral-800 outline-none placeholder:text-neutral-400 dark:text-neutral-100 dark:placeholder:text-neutral-600"
-    />
+    <div aria-label="Editor de Markdown" className="h-full">
+      <CodeMirror
+        value={content}
+        onChange={onChange}
+        theme={theme}
+        extensions={[markdownLang({ base: markdownLanguage })]}
+        height="100%"
+        placeholder="Escribe tu Markdown aquí…"
+        className="h-full text-sm"
+        basicSetup={{ lineNumbers: true, foldGutter: false, highlightActiveLine: true }}
+      />
+    </div>
   );
 }
 
