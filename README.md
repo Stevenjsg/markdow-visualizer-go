@@ -77,6 +77,21 @@ wails build
 
 El ejecutable se genera en `build/bin/`.
 
+### Lint y formato
+
+```bash
+# Go (requiere golangci-lint: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest)
+golangci-lint run
+
+# Frontend
+cd frontend
+npm run lint          # ESLint (flat config, TS estricto)
+npm run format        # Prettier (escribe cambios)
+npm run format:check  # Prettier (solo verifica)
+```
+
+La configuración vive en `.golangci.yml`, `frontend/eslint.config.js`, `frontend/.prettierrc` y `.editorconfig`.
+
 ## 📖 Documentación
 
 - [`docs/roadmap.md`](./docs/roadmap.md) — plan de desarrollo por sprints

@@ -1,3 +1,5 @@
+// MarkView: editor de Markdown de escritorio con previsualización en vivo.
+// main cablea las dependencias (DI por constructor, SDD §5.1) y arranca Wails.
 package main
 
 import (

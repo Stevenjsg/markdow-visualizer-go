@@ -1,0 +1,24 @@
+# Configuración de golangci-lint v2 — set razonable para este proyecto (plan P1.4).
+version: "2"
+
+linters:
+  default: none
+  enable:
+    - govet
+    - staticcheck
+    - errcheck
+    - revive
+  exclusions:
+    paths:
+      # Ejercicios de aprendizaje del autor: fuera del alcance del lint del build.
+      - practicas
+      # node_modules contiene paquetes Go de terceros (p. ej. flatted) que no son nuestros.
+      - frontend
+
+formatters:
+  enable:
+    - gofmt
+  exclusions:
+    paths:
+      - practicas
+      - frontend

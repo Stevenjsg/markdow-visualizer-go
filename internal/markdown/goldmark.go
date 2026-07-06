@@ -10,6 +10,6 @@ func NewGoldmarkRenderer() *GoldmarkRenderer {
 }
 
 // Render convierte Markdown a HTML. TODO(P2.1): implementar con goldmark + GFM.
-func (r *GoldmarkRenderer) Render(source string) (string, error) {
+func (r *GoldmarkRenderer) Render(_ string) (string, error) {
 	return "", nil
 }
