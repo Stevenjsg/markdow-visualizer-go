@@ -1,0 +1,57 @@
+package main
+
+import (
+	"strings"
+	"testing"
+
+	"github.com/Stevenjsg/markdow-visualizer-go/internal/files"
+	"github.com/Stevenjsg/markdow-visualizer-go/internal/markdown"
+	"github.com/Stevenjsg/markdow-visualizer-go/internal/settings"
+)
+
+// newTestApp cablea la fachada igual que main.go pero con settings aislados.
+func newTestApp(t *testing.T) *App {
+	t.Helper()
+	return NewApp(
+		markdown.NewGoldmarkRenderer(),
+		files.NewService(),
+		settings.NewServiceAt(t.TempDir()),
+	)
+}
+
+// TestAppParseMarkdownEndToEnd (P4.1/RF1): el camino fachada -> renderer
+// produce el HTML que consumirá el Preview, incluido GFM.
+func TestAppParseMarkdownEndToEnd(t *testing.T) {
+	app := newTestApp(t)
+
+	html, err := app.ParseMarkdown("# Hola\n\n- [ ] tarea pendiente")
+	if err != nil {
+		t.Fatalf("ParseMarkdown devolvió error: %v", err)
+	}
+	for _, want := range []string{`<h1 id="hola">Hola</h1>`, `type="checkbox"`} {
+		if !strings.Contains(html, want) {
+			t.Errorf("ParseMarkdown: falta %q en la salida %q", want, html)
+		}
+	}
+}
+
+// TestAppSettingsRoundTrip: la fachada delega Load/Save en el servicio.
+func TestAppSettingsRoundTrip(t *testing.T) {
+	app := newTestApp(t)
+
+	cfg, err := app.LoadSettings()
+	if err != nil {
+		t.Fatalf("LoadSettings devolvió error: %v", err)
+	}
+	cfg.Theme = "light"
+	if err := app.SaveSettings(cfg); err != nil {
+		t.Fatalf("SaveSettings devolvió error: %v", err)
+	}
+	got, err := app.LoadSettings()
+	if err != nil {
+		t.Fatalf("LoadSettings tras guardar devolvió error: %v", err)
+	}
+	if got.Theme != "light" {
+		t.Errorf("el tema no se persistió a través de la fachada: %+v", got)
+	}
+}
