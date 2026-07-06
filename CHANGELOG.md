@@ -1,0 +1,32 @@
+# Changelog
+
+Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/);
+versionado según [SemVer](https://semver.org/lang/es/).
+
+## [0.1.0] — pendiente de publicación
+
+Primera versión funcional de **MarkView**: editor de Markdown de escritorio con
+vista previa en vivo, 100% local (Go + Wails v2 + React/TypeScript).
+
+### Añadido
+
+- **RF1 — Vista previa en vivo:** el HTML se renderiza en el backend (goldmark
+  con GFM: tablas, tachado y task lists) con debounce de ~200 ms; actualización
+  <300 ms tras dejar de escribir.
+- **RF2 — Abrir:** diálogo nativo filtrado a `*.md;*.markdown` (botón y
+  Ctrl/Cmd+O).
+- **RF3 — Guardar / Guardar como:** con diálogo nativo de destino, indicador de
+  guardado y atajos Ctrl/Cmd+S y Ctrl/Cmd+Shift+S.
+- **RF4 — Protección de cambios:** indicador ● en Toolbar y título de ventana,
+  y confirmación Guardar/Descartar/Cancelar al cerrar con cambios pendientes.
+- **RF5 — Tema claro/oscuro persistente** entre sesiones.
+- Editor **CodeMirror 6** con resaltado de sintaxis Markdown y tema sincronizado.
+- **Paneles redimensionables** (ratón y teclado) y **restauración de sesión**:
+  último archivo abierto y tamaño de ventana.
+- **Seguridad:** saneado del HTML del preview con bluemonday (defensa en
+  profundidad sobre el escape por defecto de goldmark), verificado con tests de
+  payloads XSS; informe en `docs/security-review.md`.
+- Estados de UI (vacío/feedback/error legible), accesibilidad (atajos visibles,
+  navegación por teclado, aria) y CI multiplataforma en GitHub Actions.
+
+[0.1.0]: https://github.com/Stevenjsg/markdow-visualizer-go/releases/tag/v0.1.0

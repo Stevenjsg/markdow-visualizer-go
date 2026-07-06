@@ -4,7 +4,7 @@
 
 > **Nombre de la app:** MarkView · **Module path Go:** `github.com/Stevenjsg/markdow-visualizer-go`
 
-🚧 **Estado:** Fases 0–6 completadas (MVP funcional + CodeMirror + tests + CI + revisión de seguridad). Pendiente: Fase 7 — empaquetado y release v0.1. El build lo guía [`docs/plan-desarrollo-ia.md`](./docs/plan-desarrollo-ia.md).
+🚧 **Estado:** v0.1 candidata — app funcional, empaquetada y con metadata (Fases 0–7 del [plan](./docs/plan-desarrollo-ia.md) completadas en local). Pendiente: validar [`docs/release-checklist.md`](./docs/release-checklist.md) en máquina limpia y publicar el release v0.1.0 ([CHANGELOG](./CHANGELOG.md)).
 
 ---
 
