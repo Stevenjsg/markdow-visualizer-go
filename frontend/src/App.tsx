@@ -3,6 +3,7 @@ import {
   ForceClose,
   LoadSettings,
   OpenFileDialog,
+  ReadFile,
   SaveFileDialog,
   SaveSettings,
   SetDirty,
@@ -46,14 +47,29 @@ function App() {
   // Mantiene store.html sincronizado con store.content vía backend (RF1).
   useDebouncedMarkdown();
 
-  // RF5 (P4.5): al arrancar se aplica el tema guardado; evita persistir
-  // hasta que la carga inicial termina (settingsLoaded).
+  // RF5 (P4.5) + P5.3: al arrancar se aplica el tema guardado y se restaura
+  // el último archivo abierto; evita persistir hasta terminar la carga
+  // inicial (settingsLoaded).
   const settingsLoaded = useRef(false);
   useEffect(() => {
     LoadSettings()
-      .then((cfg) => {
+      .then(async (cfg) => {
         if (cfg.theme === 'light' || cfg.theme === 'dark') {
           useDocumentStore.getState().setTheme(cfg.theme);
+        }
+        if (cfg.lastOpenedFile) {
+          try {
+            const content = await ReadFile(cfg.lastOpenedFile);
+            const { setContent, setFilePath, markClean } = useDocumentStore.getState();
+            setContent(content);
+            setFilePath(cfg.lastOpenedFile);
+            markClean();
+          } catch {
+            // Archivo borrado o movido: arrancar vacío y olvidar la referencia.
+            SaveSettings(settings.Settings.createFrom({ ...cfg, lastOpenedFile: '' })).catch(
+              () => undefined,
+            );
+          }
         }
       })
       .catch((err: unknown) => console.error('LoadSettings falló:', err))
@@ -61,6 +77,13 @@ function App() {
         settingsLoaded.current = true;
       });
   }, []);
+
+  // P5.3: recuerda el último archivo abierto/guardado para la próxima sesión.
+  const persistLastOpenedFile = (path: string) => {
+    LoadSettings()
+      .then((cfg) => SaveSettings(settings.Settings.createFrom({ ...cfg, lastOpenedFile: path })))
+      .catch((err: unknown) => console.error('No se pudo recordar el último archivo:', err));
+  };
 
   // RF5 (P4.5): persistir el tema cuando el usuario lo cambia.
   useEffect(() => {
@@ -93,6 +116,7 @@ function App() {
       setContent(file.content);
       setFilePath(file.path);
       markClean();
+      persistLastOpenedFile(file.path);
     } catch (err: unknown) {
       console.error('No se pudo abrir el archivo:', err); // P5.4: feedback visual
     }
@@ -106,6 +130,7 @@ function App() {
       await WriteFile(path, content);
       setFilePath(path);
       markClean();
+      persistLastOpenedFile(path);
     } catch (err: unknown) {
       console.error('No se pudo guardar el archivo:', err); // P5.4: feedback visual
     }

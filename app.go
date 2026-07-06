@@ -45,6 +45,29 @@ func NewApp(renderer markdown.Renderer, filesSvc *files.Service, settingsSvc *se
 // (diálogos, eventos, ventana) desde los métodos de la fachada.
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+
+	// P5.3: restaurar el tamaño de ventana de la sesión anterior.
+	// Firma verificada en wails v2.13.0 (pkg/runtime/window.go):
+	// WindowSetSize(ctx, width, height) / WindowGetSize(ctx) (int, int).
+	if cfg, err := a.settings.Load(); err == nil && cfg.WindowWidth > 0 && cfg.WindowHeight > 0 {
+		runtime.WindowSetSize(ctx, cfg.WindowWidth, cfg.WindowHeight)
+	}
+}
+
+// persistWindowSize guarda el tamaño actual de la ventana en settings (P5.3).
+// Mejor esfuerzo: un fallo aquí nunca debe bloquear el cierre de la app.
+func (a *App) persistWindowSize(ctx context.Context) {
+	width, height := runtime.WindowGetSize(ctx)
+	if width <= 0 || height <= 0 {
+		return
+	}
+	cfg, err := a.settings.Load()
+	if err != nil {
+		return
+	}
+	cfg.WindowWidth = width
+	cfg.WindowHeight = height
+	_ = a.settings.Save(cfg)
 }
 
 // ParseMarkdown convierte Markdown a HTML delegando en el Renderer (RF1).
@@ -131,7 +154,8 @@ func (a *App) ForceClose() {
 // así que la confirmación vive en un modal del frontend.
 func (a *App) beforeClose(ctx context.Context) bool {
 	if a.forceQuit || !a.isDirty {
-		return false // permitir el cierre
+		a.persistWindowSize(ctx) // P5.3: la ventana se va a cerrar de verdad
+		return false             // permitir el cierre
 	}
 	runtime.EventsEmit(ctx, "close-requested")
 	return true // prevenir el cierre; el frontend decide
