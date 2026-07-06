@@ -1,10 +1,10 @@
-# 📝 Editor de Markdown con Vista Previa en Vivo
+# 📝 MarkView — Editor de Markdown con Vista Previa en Vivo
 
 > Aplicación de escritorio para escribir Markdown y ver el resultado renderizado en tiempo real. Proyecto personal construido con Go + Wails — también es el vehículo elegido para aprender Go desde cero.
 
-> **Nota:** el nombre del proyecto está pendiente de decidir. Actualiza el título y las referencias de este README cuando lo tengas.
+> **Nombre de la app:** MarkView · **Module path Go:** `github.com/Stevenjsg/markdow-visualizer-go`
 
-🚧 **Estado:** en desarrollo activo (Sprint 1 — fundamentos de Go). Ver progreso en [`docs/roadmap.md`](./docs/roadmap.md).
+🚧 **Estado:** Fase 1 — scaffold Wails. El build lo guía [`docs/plan-desarrollo-ia.md`](./docs/plan-desarrollo-ia.md); ver también [`docs/roadmap.md`](./docs/roadmap.md).
 
 ---
 
@@ -62,8 +62,8 @@
 ### Instalación y desarrollo
 
 ```bash
-git clone <url-del-repo>
-cd <nombre-de-la-carpeta>
+git clone https://github.com/Stevenjsg/markdow-visualizer-go.git
+cd markdow-visualizer-go
 wails dev
 ```
 

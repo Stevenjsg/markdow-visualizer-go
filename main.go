@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"main/practicas"
+	"github.com/Stevenjsg/markdow-visualizer-go/practicas"
 )
 
 func main() {

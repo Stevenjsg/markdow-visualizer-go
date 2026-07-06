@@ -173,3 +173,9 @@ Elegir según interés:
 - [Go by Example](https://gobyexample.com/)
 - [Documentación de Wails v2](https://wails.io/docs/introduction)
 - [goldmark (parser de Markdown en Go)](https://github.com/yuin/goldmark)
+
+---
+
+<!-- Nota (2026-07-06): los sprints de aprendizaje de Go de este roadmap quedan como
+referencia histórica. La construcción real de la aplicación la guía, prompt a prompt,
+docs/plan-desarrollo-ia.md (fases P0.x–P8.x). -->
