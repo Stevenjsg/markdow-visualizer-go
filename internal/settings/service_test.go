@@ -90,3 +90,55 @@ func TestLoadCorruptFileFallsBackToDefaults(t *testing.T) {
 		t.Errorf("Load con JSON corrupto = %+v; se esperaban los defaults", got)
 	}
 }
+
+// TestSaveCreatesConfigDirectory (P6.1): Save crea el directorio de config
+// si no existe (primer arranque en una máquina limpia).
+func TestSaveCreatesConfigDirectory(t *testing.T) {
+	dir := filepath.Join(t.TempDir(), "anidado", "config")
+	svc := NewServiceAt(dir)
+
+	if err := svc.Save(DefaultSettings()); err != nil {
+		t.Fatalf("Save con directorio inexistente devolvió error: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(dir, settingsFileName)); err != nil {
+		t.Errorf("settings.json no se creó: %v", err)
+	}
+}
+
+// TestSaveFailsWhenDirIsFile (P6.1): si la ruta de config está ocupada por
+// un archivo, Save devuelve un error claro en lugar de un panic.
+func TestSaveFailsWhenDirIsFile(t *testing.T) {
+	parent := t.TempDir()
+	blocker := filepath.Join(parent, "ocupado")
+	if err := os.WriteFile(blocker, []byte("soy un archivo"), 0o644); err != nil {
+		t.Fatalf("preparando el bloqueo: %v", err)
+	}
+
+	svc := NewServiceAt(blocker)
+	if err := svc.Save(DefaultSettings()); err == nil {
+		t.Fatalf("Save sobre una ruta-archivo devolvió nil; se esperaba error")
+	}
+}
+
+// TestLoadPartialJSONKeepsZeroValues (P6.1): un JSON válido pero incompleto
+// deja los campos ausentes en su valor cero (comportamiento documentado de
+// encoding/json); la app los trata como "sin preferencia".
+func TestLoadPartialJSONKeepsZeroValues(t *testing.T) {
+	dir := t.TempDir()
+	svc := NewServiceAt(dir)
+
+	if err := os.WriteFile(filepath.Join(dir, settingsFileName), []byte(`{"theme":"light"}`), 0o644); err != nil {
+		t.Fatalf("preparando el archivo parcial: %v", err)
+	}
+
+	got, err := svc.Load()
+	if err != nil {
+		t.Fatalf("Load con JSON parcial devolvió error: %v", err)
+	}
+	if got.Theme != "light" {
+		t.Errorf("Theme = %q; se esperaba \"light\"", got.Theme)
+	}
+	if got.WindowWidth != 0 || got.WindowHeight != 0 || got.LastOpenedFile != "" {
+		t.Errorf("los campos ausentes deben quedar en valor cero: %+v", got)
+	}
+}

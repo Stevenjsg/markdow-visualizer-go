@@ -71,3 +71,51 @@ func TestReadFileNotFound(t *testing.T) {
 		t.Errorf("ReadFile con error devolvió contenido %q; se esperaba \"\"", got)
 	}
 }
+
+// TestReadFileOnDirectory (P6.1): leer una ruta que es un directorio falla
+// con error claro en lugar de devolver contenido basura.
+func TestReadFileOnDirectory(t *testing.T) {
+	svc := NewService()
+	dir := t.TempDir()
+
+	if _, err := svc.ReadFile(dir); err == nil {
+		t.Fatalf("ReadFile sobre un directorio devolvió nil; se esperaba error")
+	}
+}
+
+// TestWriteFileToMissingDirectory (P6.1): escribir dentro de un directorio
+// inexistente devuelve error envuelto (WriteFile no crea directorios: el
+// destino siempre proviene de un diálogo nativo que sí existe).
+func TestWriteFileToMissingDirectory(t *testing.T) {
+	svc := NewService()
+	path := filepath.Join(t.TempDir(), "subdir-inexistente", "salida.md")
+
+	err := svc.WriteFile(path, "contenido")
+	if err == nil {
+		t.Fatalf("WriteFile en directorio inexistente devolvió nil; se esperaba error")
+	}
+	if !errors.Is(err, os.ErrNotExist) {
+		t.Errorf("el error no envuelve os.ErrNotExist: %v", err)
+	}
+}
+
+// TestWriteFileEmptyContent (P6.1): guardar contenido vacío trunca el archivo
+// (caso válido: el usuario borró todo y guardó).
+func TestWriteFileEmptyContent(t *testing.T) {
+	svc := NewService()
+	path := filepath.Join(t.TempDir(), "vacio.md")
+
+	if err := svc.WriteFile(path, "algo previo"); err != nil {
+		t.Fatalf("WriteFile inicial devolvió error: %v", err)
+	}
+	if err := svc.WriteFile(path, ""); err != nil {
+		t.Fatalf("WriteFile con contenido vacío devolvió error: %v", err)
+	}
+	got, err := svc.ReadFile(path)
+	if err != nil {
+		t.Fatalf("ReadFile devolvió error: %v", err)
+	}
+	if got != "" {
+		t.Errorf("el archivo debía quedar vacío; contiene %q", got)
+	}
+}

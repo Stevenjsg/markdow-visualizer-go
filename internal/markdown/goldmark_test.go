@@ -5,6 +5,72 @@ import (
 	"testing"
 )
 
+// TestRenderLargeInput (P6.1): un documento grande se renderiza sin error y
+// produce salida proporcional (sin truncados silenciosos).
+func TestRenderLargeInput(t *testing.T) {
+	r := NewGoldmarkRenderer()
+
+	var sb strings.Builder
+	for i := 0; i < 5000; i++ {
+		sb.WriteString("## Sección\n\nPárrafo con **negrita**, `código` y [enlace](https://example.com).\n\n")
+	}
+
+	got, err := r.Render(sb.String())
+	if err != nil {
+		t.Fatalf("Render con entrada grande devolvió error: %v", err)
+	}
+	if count := strings.Count(got, "<h2"); count != 5000 {
+		t.Errorf("se esperaban 5000 encabezados; hay %d", count)
+	}
+}
+
+// TestRenderWhitespaceOnly (P6.1): una entrada de solo espacios no es la
+// cadena vacía, pero tampoco debe fallar.
+func TestRenderWhitespaceOnly(t *testing.T) {
+	r := NewGoldmarkRenderer()
+
+	got, err := r.Render("   \n\t\n  ")
+	if err != nil {
+		t.Fatalf("Render con solo espacios devolvió error: %v", err)
+	}
+	if strings.Contains(got, "<p>") && strings.TrimSpace(got) == "" {
+		t.Errorf("salida inconsistente para entrada en blanco: %q", got)
+	}
+}
+
+// TestRenderXSSVariants (P6.1): variantes adicionales de payloads peligrosos
+// que complementan TestRenderSanitizesXSS (P4.7).
+func TestRenderXSSVariants(t *testing.T) {
+	r := NewGoldmarkRenderer()
+
+	cases := []struct {
+		name      string
+		source    string
+		forbidden []string
+	}{
+		{"svg con onload", `<svg onload="alert(1)"></svg>`, []string{"onload", "<svg"}},
+		{"object embebido", `<object data="evil.swf"></object>`, []string{"<object"}},
+		{"formulario", `<form action="https://evil.example"><input type="password"></form>`, []string{"<form", "password"}},
+		{"imagen javascript:", `![x](javascript:alert(1))`, []string{"javascript:"}},
+		{"data: url en enlace", `[x](data:text/html;base64,PHNjcmlwdD4=)`, []string{"data:text/html"}},
+		{"style con expresión", `<div style="background:url(javascript:alert(1))">x</div>`, []string{"style="}},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := r.Render(tc.source)
+			if err != nil {
+				t.Fatalf("Render(%q) devolvió error: %v", tc.source, err)
+			}
+			for _, bad := range tc.forbidden {
+				if strings.Contains(got, bad) {
+					t.Errorf("Render(%q) = %q; contiene %q", tc.source, got, bad)
+				}
+			}
+		})
+	}
+}
+
 // TestRenderEmpty: la entrada vacía devuelve "" sin error (criterio P2.1).
 func TestRenderEmpty(t *testing.T) {
 	r := NewGoldmarkRenderer()
