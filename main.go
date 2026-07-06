@@ -8,14 +8,22 @@ import (
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+
+	"github.com/Stevenjsg/markdow-visualizer-go/internal/files"
+	"github.com/Stevenjsg/markdow-visualizer-go/internal/markdown"
+	"github.com/Stevenjsg/markdow-visualizer-go/internal/settings"
 )
 
 //go:embed all:frontend/dist
 var assets embed.FS
 
 func main() {
-	// Create an instance of the app structure
-	app := NewApp()
+	// Cableado explícito de dependencias (DI por constructor, SDD §5.1).
+	renderer := markdown.NewGoldmarkRenderer()
+	fileService := files.NewService()
+	settingsService := settings.NewService()
+
+	app := NewApp(renderer, fileService, settingsService)
 
 	// Create application with options
 	err := wails.Run(&options.App{
