@@ -224,7 +224,10 @@ function App() {
             onKeyDown={onDividerKeyDown}
             className="w-1 shrink-0 cursor-col-resize bg-neutral-200 transition-colors hover:bg-sky-500 focus-visible:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500 dark:bg-neutral-700 dark:hover:bg-sky-500"
           />
-          <section aria-label="Vista previa" className="min-w-0 flex-1 overflow-auto">
+          <section
+            aria-label="Vista previa"
+            className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden"
+          >
             <Preview />
           </section>
         </main>

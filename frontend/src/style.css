@@ -10,3 +10,12 @@
     local(''),
     url('assets/fonts/nunito-v16-latin-regular.woff2') format('woff2');
 }
+
+/* Tablas GFM del preview: las anchas scrollean dentro de sí mismas y nunca
+   provocan scroll horizontal del panel (mismo enfoque que GitHub). */
+.prose table {
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  overflow-x: auto;
+}
