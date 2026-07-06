@@ -24,6 +24,11 @@ type App struct {
 	renderer markdown.Renderer
 	files    *files.Service
 	settings *settings.Service
+
+	// isDirty refleja si el frontend tiene cambios sin guardar (RF4).
+	isDirty bool
+	// forceQuit salta la confirmación cuando el usuario ya decidió cerrar.
+	forceQuit bool
 }
 
 // NewApp recibe sus dependencias por constructor (DI explícita, sin
@@ -95,6 +100,41 @@ func (a *App) OpenFileDialog() (FileContent, error) {
 		return FileContent{}, err
 	}
 	return FileContent{Path: path, Content: content}, nil
+}
+
+// SetDirty sincroniza al backend el estado "cambios sin guardar" del frontend
+// y lo refleja en el título de la ventana (RF4).
+func (a *App) SetDirty(dirty bool) {
+	a.isDirty = dirty
+	title := "MarkView"
+	if dirty {
+		title = "● MarkView (sin guardar)"
+	}
+	runtime.WindowSetTitle(a.ctx, title)
+}
+
+// ForceClose cierra la aplicación saltándose la confirmación: la decisión ya
+// se tomó en el modal del frontend (Guardar o Descartar).
+func (a *App) ForceClose() {
+	a.forceQuit = true
+	runtime.Quit(a.ctx)
+}
+
+// beforeClose intercepta el cierre de la ventana (OnBeforeClose de Wails).
+// Sin cambios pendientes deja cerrar; con cambios emite "close-requested" y
+// previene el cierre para que el frontend muestre el modal con
+// Guardar / Descartar / Cancelar.
+//
+// Decisión P4.4: en Windows runtime.MessageDialog usa el MessageBox nativo
+// con botones fijos (Yes/No/Ok/Cancel…), sin tres botones personalizados
+// (verificado en wails v2.13.0, internal/frontend/desktop/windows/dialog.go),
+// así que la confirmación vive en un modal del frontend.
+func (a *App) beforeClose(ctx context.Context) bool {
+	if a.forceQuit || !a.isDirty {
+		return false // permitir el cierre
+	}
+	runtime.EventsEmit(ctx, "close-requested")
+	return true // prevenir el cierre; el frontend decide
 }
 
 // SaveFileDialog muestra el diálogo nativo "Guardar como" filtrado a Markdown

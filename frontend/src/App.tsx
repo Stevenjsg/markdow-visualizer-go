@@ -1,4 +1,13 @@
-import { OpenFileDialog, SaveFileDialog, WriteFile } from '../wailsjs/go/main/App';
+import { useEffect, useState } from 'react';
+import {
+  ForceClose,
+  OpenFileDialog,
+  SaveFileDialog,
+  SetDirty,
+  WriteFile,
+} from '../wailsjs/go/main/App';
+import { EventsOn } from '../wailsjs/runtime/runtime';
+import ConfirmClose from './components/ConfirmClose/ConfirmClose';
 import Editor from './components/Editor/Editor';
 import Preview from './components/Preview/Preview';
 import Toolbar from './components/Toolbar/Toolbar';
@@ -9,9 +18,24 @@ import { useDocumentStore } from './store/documentStore';
 // store (theme) y se aplica con la clase `dark` en el wrapper.
 function App() {
   const theme = useDocumentStore((s) => s.theme);
+  const isDirty = useDocumentStore((s) => s.isDirty);
 
   // Mantiene store.html sincronizado con store.content vía backend (RF1).
   useDebouncedMarkdown();
+
+  // RF4 (P4.4): el backend refleja isDirty en el título de la ventana y lo
+  // usa en OnBeforeClose para decidir si interceptar el cierre.
+  useEffect(() => {
+    SetDirty(isDirty).catch((err: unknown) => console.error('SetDirty falló:', err));
+  }, [isDirty]);
+
+  // RF4 (P4.4): con cambios pendientes, el backend previene el cierre y emite
+  // "close-requested"; aquí se abre el modal Guardar/Descartar/Cancelar.
+  const [closeRequested, setCloseRequested] = useState(false);
+  useEffect(() => {
+    const unsubscribe = EventsOn('close-requested', () => setCloseRequested(true));
+    return unsubscribe;
+  }, []);
 
   // RF2 (P4.2): diálogo nativo -> contenido y ruta al store, recién abierto = limpio.
   const handleOpen = async () => {
@@ -55,6 +79,20 @@ function App() {
     }
   };
 
+  // RF4: acciones del modal de cierre. Guardar solo cierra si el guardado
+  // realmente limpió el documento (p. ej. no se canceló el "Guardar como").
+  const handleConfirmSave = async () => {
+    await handleSave();
+    if (!useDocumentStore.getState().isDirty) {
+      ForceClose().catch((err: unknown) => console.error('ForceClose falló:', err));
+    } else {
+      setCloseRequested(false);
+    }
+  };
+  const handleConfirmDiscard = () => {
+    ForceClose().catch((err: unknown) => console.error('ForceClose falló:', err));
+  };
+
   return (
     <div className={theme === 'dark' ? 'dark' : ''}>
       <div className="flex h-screen flex-col bg-white text-neutral-900 transition-colors dark:bg-neutral-900 dark:text-neutral-100">
@@ -71,6 +109,13 @@ function App() {
             <Preview />
           </section>
         </main>
+
+        <ConfirmClose
+          open={closeRequested}
+          onSave={handleConfirmSave}
+          onDiscard={handleConfirmDiscard}
+          onCancel={() => setCloseRequested(false)}
+        />
       </div>
     </div>
   );
