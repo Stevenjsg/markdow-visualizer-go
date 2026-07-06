@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/Stevenjsg/markdow-visualizer-go/internal/files"
 	"github.com/Stevenjsg/markdow-visualizer-go/internal/markdown"
@@ -35,7 +34,27 @@ func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 }
 
-// Greet es el método de ejemplo del scaffold (P1.5). Se elimina en P2.5.
-func (a *App) Greet(name string) string {
-	return fmt.Sprintf("Hello %s, It's show time!", name)
+// ParseMarkdown convierte Markdown a HTML delegando en el Renderer (RF1).
+func (a *App) ParseMarkdown(content string) (string, error) {
+	return a.renderer.Render(content)
+}
+
+// ReadFile devuelve el contenido del archivo indicado (RF2).
+func (a *App) ReadFile(path string) (string, error) {
+	return a.files.ReadFile(path)
+}
+
+// WriteFile crea o sobrescribe el archivo indicado con el contenido (RF3).
+func (a *App) WriteFile(path, content string) error {
+	return a.files.WriteFile(path, content)
+}
+
+// LoadSettings carga la configuración persistida del usuario (RF5).
+func (a *App) LoadSettings() (settings.Settings, error) {
+	return a.settings.Load()
+}
+
+// SaveSettings persiste la configuración del usuario (RF5).
+func (a *App) SaveSettings(cfg settings.Settings) error {
+	return a.settings.Save(cfg)
 }
