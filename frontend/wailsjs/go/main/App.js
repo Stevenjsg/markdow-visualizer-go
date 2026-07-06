@@ -18,6 +18,10 @@ export function ReadFile(arg1) {
   return window['go']['main']['App']['ReadFile'](arg1);
 }
 
+export function SaveFileDialog() {
+  return window['go']['main']['App']['SaveFileDialog']();
+}
+
 export function SaveSettings(arg1) {
   return window['go']['main']['App']['SaveSettings'](arg1);
 }

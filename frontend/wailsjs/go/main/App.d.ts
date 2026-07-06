@@ -11,6 +11,8 @@ export function ParseMarkdown(arg1:string):Promise<string>;
 
 export function ReadFile(arg1:string):Promise<string>;
 
+export function SaveFileDialog():Promise<string>;
+
 export function SaveSettings(arg1:settings.Settings):Promise<void>;
 
 export function WriteFile(arg1:string,arg2:string):Promise<void>;

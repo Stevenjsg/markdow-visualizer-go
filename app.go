@@ -96,3 +96,20 @@ func (a *App) OpenFileDialog() (FileContent, error) {
 	}
 	return FileContent{Path: path, Content: content}, nil
 }
+
+// SaveFileDialog muestra el diálogo nativo "Guardar como" filtrado a Markdown
+// y devuelve la ruta elegida ("" si el usuario cancela). La escritura la hace
+// el frontend con App.WriteFile (P2.5), que ya delega en files.WriteFile.
+// Firma verificada en wails v2.13.0 (pkg/runtime/dialog.go):
+// SaveFileDialog(ctx, SaveDialogOptions) (string, error).
+func (a *App) SaveFileDialog() (string, error) {
+	path, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{
+		Title:           "Guardar archivo Markdown",
+		DefaultFilename: "documento.md",
+		Filters:         markdownFilters,
+	})
+	if err != nil {
+		return "", fmt.Errorf("mostrar el diálogo de guardado: %w", err)
+	}
+	return path, nil
+}

@@ -1,4 +1,4 @@
-import { OpenFileDialog } from '../wailsjs/go/main/App';
+import { OpenFileDialog, SaveFileDialog, WriteFile } from '../wailsjs/go/main/App';
 import Editor from './components/Editor/Editor';
 import Preview from './components/Preview/Preview';
 import Toolbar from './components/Toolbar/Toolbar';
@@ -26,8 +26,34 @@ function App() {
       console.error('No se pudo abrir el archivo:', err); // P5.4: feedback visual
     }
   };
-  const handleSave = () => console.log('TODO(P4.3): guardar archivo');
-  const handleSaveAs = () => console.log('TODO(P4.3): guardar como…');
+  // RF3 (P4.3): Guardar como pide destino con el diálogo nativo y actualiza la ruta.
+  const handleSaveAs = async () => {
+    try {
+      const { content, setFilePath, markClean } = useDocumentStore.getState();
+      const path = await SaveFileDialog();
+      if (!path) return; // el usuario canceló el diálogo
+      await WriteFile(path, content);
+      setFilePath(path);
+      markClean();
+    } catch (err: unknown) {
+      console.error('No se pudo guardar el archivo:', err); // P5.4: feedback visual
+    }
+  };
+
+  // RF3 (P4.3): Guardar escribe sobre filePath; sin archivo cae en Guardar como.
+  const handleSave = async () => {
+    const { content, filePath, markClean } = useDocumentStore.getState();
+    if (!filePath) {
+      await handleSaveAs();
+      return;
+    }
+    try {
+      await WriteFile(filePath, content);
+      markClean();
+    } catch (err: unknown) {
+      console.error('No se pudo guardar el archivo:', err); // P5.4: feedback visual
+    }
+  };
 
   return (
     <div className={theme === 'dark' ? 'dark' : ''}>
