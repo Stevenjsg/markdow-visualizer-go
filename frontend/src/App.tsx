@@ -1,12 +1,16 @@
 import { useState } from 'react';
 import Editor from './components/Editor/Editor';
 import Preview from './components/Preview/Preview';
+import { useDebouncedMarkdown } from './hooks/useDebouncedMarkdown';
 
 // Layout base (P3.1): Toolbar arriba y dos paneles Editor | Preview.
 // El tema se conmuta con la clase `dark` en el wrapper (darkMode: 'class');
 // la persistencia llega en RF5 (P4.5) y los componentes reales en P3.3-P3.6.
 function App() {
   const [dark, setDark] = useState(true);
+
+  // Mantiene store.html sincronizado con store.content vía backend (RF1).
+  useDebouncedMarkdown();
 
   return (
     <div className={dark ? 'dark' : ''}>
