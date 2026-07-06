@@ -6,6 +6,10 @@ export function LoadSettings() {
   return window['go']['main']['App']['LoadSettings']();
 }
 
+export function OpenFileDialog() {
+  return window['go']['main']['App']['OpenFileDialog']();
+}
+
 export function ParseMarkdown(arg1) {
   return window['go']['main']['App']['ParseMarkdown'](arg1);
 }

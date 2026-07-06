@@ -1,3 +1,4 @@
+import { OpenFileDialog } from '../wailsjs/go/main/App';
 import Editor from './components/Editor/Editor';
 import Preview from './components/Preview/Preview';
 import Toolbar from './components/Toolbar/Toolbar';
@@ -12,8 +13,19 @@ function App() {
   // Mantiene store.html sincronizado con store.content vía backend (RF1).
   useDebouncedMarkdown();
 
-  // Stubs de P3.6: el cableado real a los bindings de Wails llega en Fase 4.
-  const handleOpen = () => console.log('TODO(P4.2): abrir archivo');
+  // RF2 (P4.2): diálogo nativo -> contenido y ruta al store, recién abierto = limpio.
+  const handleOpen = async () => {
+    try {
+      const file = await OpenFileDialog();
+      if (!file.path) return; // el usuario canceló el diálogo
+      const { setContent, setFilePath, markClean } = useDocumentStore.getState();
+      setContent(file.content);
+      setFilePath(file.path);
+      markClean();
+    } catch (err: unknown) {
+      console.error('No se pudo abrir el archivo:', err); // P5.4: feedback visual
+    }
+  };
   const handleSave = () => console.log('TODO(P4.3): guardar archivo');
   const handleSaveAs = () => console.log('TODO(P4.3): guardar como…');
 
