@@ -4,7 +4,7 @@
 
 > **Nombre de la app:** MarkView · **Module path Go:** `github.com/Stevenjsg/markdow-visualizer-go`
 
-🚧 **Estado:** Fase 1 — scaffold Wails. El build lo guía [`docs/plan-desarrollo-ia.md`](./docs/plan-desarrollo-ia.md); ver también [`docs/roadmap.md`](./docs/roadmap.md).
+🚧 **Estado:** Fases 0–6 completadas (MVP funcional + CodeMirror + tests + CI + revisión de seguridad). Pendiente: Fase 7 — empaquetado y release v0.1. El build lo guía [`docs/plan-desarrollo-ia.md`](./docs/plan-desarrollo-ia.md).
 
 ---
 
