@@ -35,7 +35,11 @@ func TestSaveLoadRoundTrip(t *testing.T) {
 		LastOpenedFile: `C:\notas\readme.md`,
 		WindowWidth:    1440,
 		WindowHeight:   900,
-		WordWrap:       false, // valor no-default: debe sobrevivir el round-trip
+		// Posición negativa legítima: monitor secundario a la izquierda.
+		WindowX:         -1920,
+		WindowY:         42,
+		WindowMaximised: true,
+		WordWrap:        false, // valor no-default: debe sobrevivir el round-trip
 	}
 
 	if err := svc.Save(want); err != nil {
@@ -142,6 +146,9 @@ func TestLoadPartialJSONKeepsDefaults(t *testing.T) {
 	def := DefaultSettings()
 	if got.WindowWidth != def.WindowWidth || got.WindowHeight != def.WindowHeight {
 		t.Errorf("el tamaño de ventana ausente debe conservar defaults: %+v", got)
+	}
+	if got.WindowX != def.WindowX || got.WindowY != def.WindowY {
+		t.Errorf("la posición ausente debe conservar el centinela (-1,-1): %+v", got)
 	}
 	if got.WordWrap != def.WordWrap {
 		t.Errorf("wordWrap ausente debe conservar el default %v: %+v", def.WordWrap, got)

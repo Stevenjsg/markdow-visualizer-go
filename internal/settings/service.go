@@ -18,23 +18,33 @@ const settingsFileName = "settings.json"
 const appConfigDirName = "MarkView"
 
 // Settings es el modelo de configuración persistente (tags según SDD §7,
-// ampliado con wordWrap para el ajuste de línea del editor).
+// ampliado con wordWrap y con la geometría completa de la ventana).
 type Settings struct {
 	Theme          string `json:"theme"`
 	LastOpenedFile string `json:"lastOpenedFile"`
 	WindowWidth    int    `json:"windowWidth"`
 	WindowHeight   int    `json:"windowHeight"`
-	WordWrap       bool   `json:"wordWrap"`
+	// WindowX/WindowY usan (-1, -1) como centinela "sin posición guardada"
+	// (la ventana se centra). Una posición real puede ser negativa con varios
+	// monitores, pero exactamente (-1, -1) es un caso despreciable.
+	WindowX int `json:"windowX"`
+	WindowY int `json:"windowY"`
+	// WindowMaximised restaura el maximizado sin pisar la geometría "normal".
+	WindowMaximised bool `json:"windowMaximised"`
+	WordWrap        bool `json:"wordWrap"`
 }
 
 // DefaultSettings devuelve la configuración inicial de la app.
 func DefaultSettings() Settings {
 	return Settings{
-		Theme:          "dark",
-		LastOpenedFile: "",
-		WindowWidth:    1200,
-		WindowHeight:   800,
-		WordWrap:       true,
+		Theme:           "dark",
+		LastOpenedFile:  "",
+		WindowWidth:     1200,
+		WindowHeight:    800,
+		WindowX:         -1,
+		WindowY:         -1,
+		WindowMaximised: false,
+		WordWrap:        true,
 	}
 }
 

@@ -46,27 +46,61 @@ func NewApp(renderer markdown.Renderer, filesSvc *files.Service, settingsSvc *se
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 
-	// P5.3: restaurar el tamaño de ventana de la sesión anterior.
-	// Firma verificada en wails v2.13.0 (pkg/runtime/window.go):
-	// WindowSetSize(ctx, width, height) / WindowGetSize(ctx) (int, int).
-	if cfg, err := a.settings.Load(); err == nil && cfg.WindowWidth > 0 && cfg.WindowHeight > 0 {
-		runtime.WindowSetSize(ctx, cfg.WindowWidth, cfg.WindowHeight)
-	}
-}
-
-// persistWindowSize guarda el tamaño actual de la ventana en settings (P5.3).
-// Mejor esfuerzo: un fallo aquí nunca debe bloquear el cierre de la app.
-func (a *App) persistWindowSize(ctx context.Context) {
-	width, height := runtime.WindowGetSize(ctx)
-	if width <= 0 || height <= 0 {
-		return
-	}
+	// P5.3 + geometría completa: restaurar tamaño, posición y maximizado de
+	// la sesión anterior. Firmas verificadas en wails v2.13.0
+	// (pkg/runtime/window.go): WindowSetSize/WindowSetPosition/WindowMaximise.
 	cfg, err := a.settings.Load()
 	if err != nil {
 		return
 	}
+	if cfg.WindowWidth > 0 && cfg.WindowHeight > 0 {
+		runtime.WindowSetSize(ctx, cfg.WindowWidth, cfg.WindowHeight)
+	}
+	// (-1, -1) es el centinela "sin posición guardada": se deja centrada.
+	// Nota: el runtime no expone los límites de cada monitor, así que una
+	// posición de un monitor ya desconectado se restaura tal cual (la ventana
+	// se recupera con Win+flechas); edge documentado en el checklist.
+	if cfg.WindowX != -1 || cfg.WindowY != -1 {
+		runtime.WindowSetPosition(ctx, cfg.WindowX, cfg.WindowY)
+	}
+	if cfg.WindowMaximised {
+		runtime.WindowMaximise(ctx)
+	}
+}
+
+// persistWindowState guarda la geometría de la ventana (tamaño, posición y
+// maximizado) en settings al cerrar. Mejor esfuerzo: un fallo aquí nunca debe
+// bloquear el cierre de la app.
+func (a *App) persistWindowState(ctx context.Context) {
+	// Minimizada: la geometría reportada no es representativa; se conserva
+	// la última guardada.
+	if runtime.WindowIsMinimised(ctx) {
+		return
+	}
+
+	cfg, err := a.settings.Load()
+	if err != nil {
+		return
+	}
+
+	// Maximizada: solo se registra el estado; el tamaño/posición "normales"
+	// previos se conservan para cuando el usuario des-maximice.
+	if runtime.WindowIsMaximised(ctx) {
+		cfg.WindowMaximised = true
+		_ = a.settings.Save(cfg)
+		return
+	}
+
+	width, height := runtime.WindowGetSize(ctx)
+	if width <= 0 || height <= 0 {
+		return
+	}
+	x, y := runtime.WindowGetPosition(ctx)
 	cfg.WindowWidth = width
 	cfg.WindowHeight = height
+	cfg.WindowX = x
+	cfg.WindowY = y
+	cfg.WindowMaximised = false
 	_ = a.settings.Save(cfg)
 }
 
@@ -154,8 +188,8 @@ func (a *App) ForceClose() {
 // así que la confirmación vive en un modal del frontend.
 func (a *App) beforeClose(ctx context.Context) bool {
 	if a.forceQuit || !a.isDirty {
-		a.persistWindowSize(ctx) // P5.3: la ventana se va a cerrar de verdad
-		return false             // permitir el cierre
+		a.persistWindowState(ctx) // la ventana se va a cerrar de verdad
+		return false              // permitir el cierre
 	}
 	runtime.EventsEmit(ctx, "close-requested")
 	return true // prevenir el cierre; el frontend decide

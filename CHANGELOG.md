@@ -22,7 +22,8 @@ vista previa en vivo, 100% local (Go + Wails v2 + React/TypeScript).
 - **RF5 — Tema claro/oscuro persistente** entre sesiones.
 - Editor **CodeMirror 6** con resaltado de sintaxis Markdown y tema sincronizado.
 - **Paneles redimensionables** (ratón y teclado) y **restauración de sesión**:
-  último archivo abierto y tamaño de ventana.
+  último archivo abierto y geometría completa de la ventana (tamaño, posición
+  y estado maximizado).
 - **Seguridad:** saneado del HTML del preview con bluemonday (defensa en
   profundidad sobre el escape por defecto de goldmark), verificado con tests de
   payloads XSS; informe en `docs/security-review.md`.

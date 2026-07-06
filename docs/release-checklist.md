@@ -66,6 +66,13 @@ desarrollo: sin Go, Node ni Wails) antes de publicar la v0.1.
 
 - [ ] Reabrir la app restaura el último archivo abierto.
 - [ ] El tamaño de ventana se conserva entre sesiones.
+- [ ] La **posición** de la ventana se conserva entre sesiones (moverla,
+      cerrar, reabrir). Nota: si la posición pertenecía a un monitor ya
+      desconectado, la ventana puede quedar fuera de pantalla; se recupera
+      con Win+flechas (limitación documentada: el runtime no expone los
+      límites de cada monitor).
+- [ ] Cerrar **maximizada** y reabrir: arranca maximizada, y al des-maximizar
+      recupera el tamaño/posición normales previos.
 - [ ] Borrar/mover el último archivo y reabrir: la app arranca vacía, sin error.
 - [ ] `settings.json` aparece en el directorio de config del usuario
       (Windows: `%AppData%\MarkView\settings.json`).
