@@ -4,6 +4,8 @@ export interface ShortcutHandlers {
   onOpen: () => void;
   onSave: () => void;
   onSaveAs: () => void;
+  /** Cerrar el archivo actual (Ctrl/Cmd+W). */
+  onClose: () => void;
 }
 
 // Atajos globales (P4.6): Ctrl/Cmd+S guardar, Ctrl/Cmd+Shift+S guardar como
@@ -38,6 +40,11 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
       } else if (key === 'o') {
         e.preventDefault();
         handlersRef.current.onOpen();
+      } else if (key === 'w') {
+        // En la ventana de Wails el preventDefault evita el cierre por
+        // defecto; en modo navegador (wails dev) puede ganar el navegador.
+        e.preventDefault();
+        handlersRef.current.onClose();
       }
     };
 

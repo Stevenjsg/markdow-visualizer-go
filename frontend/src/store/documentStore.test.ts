@@ -28,6 +28,27 @@ describe('documentStore', () => {
     expect(useDocumentStore.getState().theme).toBe('light');
   });
 
+  it('resetDocument vuelve al estado vacío y limpio en un solo paso', () => {
+    const s = useDocumentStore.getState();
+    s.setContent('# algo');
+    s.setHtml('<h1>algo</h1>');
+    s.setFilePath('C:\\notas\\algo.md');
+
+    useDocumentStore.getState().resetDocument();
+
+    const state = useDocumentStore.getState();
+    expect(state.content).toBe('');
+    expect(state.html).toBe('');
+    expect(state.filePath).toBeNull();
+    expect(state.isDirty).toBe(false);
+  });
+
+  it('setWordWrap alterna el ajuste de línea', () => {
+    expect(useDocumentStore.getState().wordWrap).toBe(true);
+    useDocumentStore.getState().setWordWrap(false);
+    expect(useDocumentStore.getState().wordWrap).toBe(false);
+  });
+
   it('setSplitRatio clampa la proporción al rango 0.2–0.8', () => {
     useDocumentStore.getState().setSplitRatio(0.05);
     expect(useDocumentStore.getState().splitRatio).toBe(0.2);

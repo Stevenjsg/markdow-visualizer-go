@@ -4,6 +4,7 @@ export interface ToolbarProps {
   onOpen: () => void;
   onSave: () => void;
   onSaveAs: () => void;
+  onClose: () => void;
 }
 
 // Estilo compartido de los botones: foco visible para navegación por teclado.
@@ -13,7 +14,7 @@ const buttonClass =
 // Toolbar (P3.6): Abrir / Guardar / Guardar como + toggle de tema.
 // Los callbacks llegan por props como stubs hasta la Fase 4; el indicador ●
 // refleja isDirty (RF4) y el toggle opera sobre store.theme (RF5 lo persiste).
-function Toolbar({ onOpen, onSave, onSaveAs }: ToolbarProps) {
+function Toolbar({ onOpen, onSave, onSaveAs, onClose }: ToolbarProps) {
   const isDirty = useDocumentStore((s) => s.isDirty);
   const filePath = useDocumentStore((s) => s.filePath);
   const theme = useDocumentStore((s) => s.theme);
@@ -54,6 +55,16 @@ function Toolbar({ onOpen, onSave, onSaveAs }: ToolbarProps) {
         title="Guardar como… (Ctrl/Cmd+Shift+S)"
       >
         📄 Guardar como…
+      </button>
+      <button
+        type="button"
+        className={buttonClass}
+        onClick={onClose}
+        aria-label="Cerrar archivo"
+        aria-keyshortcuts="Control+W Meta+W"
+        title="Cerrar archivo (Ctrl/Cmd+W)"
+      >
+        ✕ Cerrar
       </button>
 
       <span className="ml-auto flex items-center gap-3">

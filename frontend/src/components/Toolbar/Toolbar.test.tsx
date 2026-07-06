@@ -4,7 +4,7 @@ import { useDocumentStore } from '../../store/documentStore';
 import Toolbar from './Toolbar';
 
 function renderToolbar() {
-  const handlers = { onOpen: vi.fn(), onSave: vi.fn(), onSaveAs: vi.fn() };
+  const handlers = { onOpen: vi.fn(), onSave: vi.fn(), onSaveAs: vi.fn(), onClose: vi.fn() };
   render(<Toolbar {...handlers} />);
   return handlers;
 }
@@ -26,6 +26,9 @@ describe('Toolbar', () => {
 
     await user.click(screen.getByRole('button', { name: 'Guardar como archivo nuevo' }));
     expect(handlers.onSaveAs).toHaveBeenCalledTimes(1);
+
+    await user.click(screen.getByRole('button', { name: 'Cerrar archivo' }));
+    expect(handlers.onClose).toHaveBeenCalledTimes(1);
   });
 
   it('muestra el indicador ● solo cuando hay cambios sin guardar', () => {

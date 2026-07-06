@@ -183,8 +183,41 @@ function App() {
     }
   };
 
-  // P4.6: atajos Ctrl/Cmd+S, Ctrl/Cmd+Shift+S y Ctrl/Cmd+O.
-  useKeyboardShortcuts({ onOpen: handleOpen, onSave: handleSave, onSaveAs: handleSaveAs });
+  // Cerrar archivo: sin cambios pendientes cierra directo; con cambios abre
+  // su propio modal Guardar/Descartar/Cancelar (reutiliza ConfirmClose).
+  const [closeFileRequested, setCloseFileRequested] = useState(false);
+  const doCloseFile = () => {
+    useDocumentStore.getState().resetDocument();
+    setCloseFileRequested(false);
+    // Olvida el último archivo: cerrar significa no restaurarlo al reiniciar.
+    LoadSettings()
+      .then((cfg) => SaveSettings(settings.Settings.createFrom({ ...cfg, lastOpenedFile: '' })))
+      .catch(() => undefined);
+    showInfo('Archivo cerrado');
+  };
+  const handleCloseFile = () => {
+    if (!useDocumentStore.getState().isDirty) {
+      doCloseFile();
+      return;
+    }
+    setCloseFileRequested(true);
+  };
+  const handleCloseFileSave = async () => {
+    await handleSave();
+    if (!useDocumentStore.getState().isDirty) {
+      doCloseFile();
+    } else {
+      setCloseFileRequested(false); // el usuario canceló el "Guardar como"
+    }
+  };
+
+  // P4.6: atajos Ctrl/Cmd+S, Ctrl/Cmd+Shift+S, Ctrl/Cmd+O y Ctrl/Cmd+W.
+  useKeyboardShortcuts({
+    onOpen: handleOpen,
+    onSave: handleSave,
+    onSaveAs: handleSaveAs,
+    onClose: handleCloseFile,
+  });
 
   // RF4: acciones del modal de cierre. Guardar solo cierra si el guardado
   // realmente limpió el documento (p. ej. no se canceló el "Guardar como").
@@ -203,7 +236,12 @@ function App() {
   return (
     <div className={theme === 'dark' ? 'dark' : ''}>
       <div className="flex h-screen flex-col bg-white text-neutral-900 transition-colors dark:bg-neutral-900 dark:text-neutral-100">
-        <Toolbar onOpen={handleOpen} onSave={handleSave} onSaveAs={handleSaveAs} />
+        <Toolbar
+          onOpen={handleOpen}
+          onSave={handleSave}
+          onSaveAs={handleSaveAs}
+          onClose={handleCloseFile}
+        />
 
         <main ref={mainRef} className="flex min-h-0 flex-1">
           <section
@@ -241,6 +279,15 @@ function App() {
           onSave={handleConfirmSave}
           onDiscard={handleConfirmDiscard}
           onCancel={() => setCloseRequested(false)}
+        />
+
+        <ConfirmClose
+          open={closeFileRequested}
+          title="¿Guardar los cambios antes de cerrar el archivo?"
+          message="El documento tiene cambios sin guardar. Si los descartas, se perderán."
+          onSave={handleCloseFileSave}
+          onDiscard={doCloseFile}
+          onCancel={() => setCloseFileRequested(false)}
         />
       </div>
     </div>

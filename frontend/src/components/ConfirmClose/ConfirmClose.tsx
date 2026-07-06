@@ -2,6 +2,10 @@ import { type KeyboardEvent } from 'react';
 
 export interface ConfirmCloseProps {
   open: boolean;
+  /** Título del diálogo; por defecto, el del cierre de la app. */
+  title?: string;
+  /** Mensaje descriptivo; por defecto, el del cierre de la app. */
+  message?: string;
   onSave: () => void;
   onDiscard: () => void;
   onCancel: () => void;
@@ -10,10 +14,18 @@ export interface ConfirmCloseProps {
 const baseButton =
   'rounded px-3 py-1.5 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500';
 
-// Modal de confirmación al cerrar con cambios sin guardar (RF4, P4.4).
+// Modal de confirmación con cambios sin guardar (RF4, P4.4). Reutilizable:
+// sirve para cerrar la app y para cerrar el archivo actual (title/message).
 // Sustituye al MessageDialog nativo porque en Windows este no admite tres
 // botones personalizados (Guardar / Descartar / Cancelar).
-function ConfirmClose({ open, onSave, onDiscard, onCancel }: ConfirmCloseProps) {
+function ConfirmClose({
+  open,
+  title = '¿Guardar los cambios antes de salir?',
+  message = 'Hay cambios sin guardar. Si los descartas, se perderán definitivamente.',
+  onSave,
+  onDiscard,
+  onCancel,
+}: ConfirmCloseProps) {
   if (!open) return null;
 
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
@@ -30,11 +42,9 @@ function ConfirmClose({ open, onSave, onDiscard, onCancel }: ConfirmCloseProps) 
         className="w-96 max-w-[90vw] rounded-lg border border-neutral-200 bg-white p-5 text-neutral-900 shadow-xl dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
       >
         <h2 id="confirm-close-title" className="text-base font-semibold">
-          ¿Guardar los cambios antes de salir?
+          {title}
         </h2>
-        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">
-          Hay cambios sin guardar. Si los descartas, se perderán definitivamente.
-        </p>
+        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">{message}</p>
         <div className="mt-5 flex justify-end gap-2">
           <button
             type="button"

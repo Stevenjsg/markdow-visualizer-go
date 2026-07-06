@@ -34,6 +34,8 @@ export interface DocumentState {
   setHtml: (html: string) => void;
   setFilePath: (filePath: string | null) => void;
   markClean: () => void;
+  /** Cierra el documento actual: vuelve al estado vacío y limpio. */
+  resetDocument: () => void;
   setTheme: (theme: Theme) => void;
   setSplitRatio: (ratio: number) => void;
   setStatus: (status: StatusMessage | null) => void;
@@ -60,6 +62,8 @@ export const useDocumentStore = create<DocumentState>()((set) => ({
   setFilePath: (filePath) => set({ filePath }),
   // …y markClean lo limpia (se usa tras guardar o abrir un archivo).
   markClean: () => set({ isDirty: false }),
+  // Un único set evita el estado intermedio sucio de setContent('').
+  resetDocument: () => set({ content: '', html: '', filePath: null, isDirty: false }),
   setTheme: (theme) => set({ theme }),
   setSplitRatio: (ratio) => set({ splitRatio: Math.min(MAX_SPLIT, Math.max(MIN_SPLIT, ratio)) }),
   setStatus: (status) => set({ status }),
