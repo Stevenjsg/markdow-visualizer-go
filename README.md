@@ -117,6 +117,18 @@ npm run format:check  # Prettier (solo verifica)
 
 La configuración vive en `.golangci.yml`, `frontend/eslint.config.js`, `frontend/.prettierrc` y `.editorconfig`.
 
+## ⌨️ Atajos de teclado
+
+| Acción | Atajo |
+|---|---|
+| Abrir archivo | `Ctrl/Cmd+O` |
+| Guardar · Guardar como | `Ctrl/Cmd+S` · `Ctrl/Cmd+Shift+S` |
+| Cerrar archivo | `Ctrl/Cmd+W` |
+| Negrita · Cursiva · Tachado | `Ctrl/Cmd+B` · `Ctrl/Cmd+I` · `Ctrl/Cmd+Shift+X` |
+| Insertar enlace | `Ctrl/Cmd+K` |
+| Título 1–3 | `Ctrl/Cmd+Alt+1…3` |
+| Ajuste de línea del editor | `Alt+Z` |
+
 ## 📖 Documentación
 
 - [`docs/roadmap.md`](./docs/roadmap.md) — plan de desarrollo por sprints

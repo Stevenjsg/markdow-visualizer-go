@@ -18,6 +18,10 @@ function Preview() {
             </kbd>
             . La vista previa se actualiza sola mientras escribes.
           </p>
+          <p className="mt-3 text-xs">
+            Atajos: Ctrl+B negrita · Ctrl+I cursiva · Ctrl+K enlace · Ctrl+Shift+X tachado ·
+            Ctrl+Alt+1–3 títulos · Ctrl+W cerrar · Alt+Z ajuste de línea
+          </p>
         </div>
       </div>
     );

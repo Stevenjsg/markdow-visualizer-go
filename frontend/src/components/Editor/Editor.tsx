@@ -4,6 +4,13 @@ import { EditorView, keymap } from '@codemirror/view';
 import CodeMirror from '@uiw/react-codemirror';
 import { useCallback, useMemo } from 'react';
 import { useDocumentStore } from '../../store/documentStore';
+import {
+  insertLink,
+  setHeading,
+  toggleBold,
+  toggleItalic,
+  toggleStrikethrough,
+} from './markdownCommands';
 
 // Editor con CodeMirror 6 y resaltado de Markdown (P5.1).
 // Mantiene el contrato de P3.3 — lee y escribe store.content — por lo que el
@@ -22,11 +29,20 @@ function Editor() {
 
   // Ajuste de línea conmutable (como VS Code): con wrap desactivado el editor
   // muestra su propio scroll horizontal; el preview nunca lo tiene.
+  // El keymap añade los atajos de formato (convención estándar Ctrl/Cmd+B/I/K,
+  // títulos como Word con Ctrl/Cmd+Alt+1-3) y Alt+Z para el wrap.
   const extensions = useMemo(() => {
     const exts = [
       markdownLang({ base: markdownLanguage }),
       Prec.high(
         keymap.of([
+          { key: 'Mod-b', run: toggleBold },
+          { key: 'Mod-i', run: toggleItalic },
+          { key: 'Mod-Shift-x', run: toggleStrikethrough },
+          { key: 'Mod-k', run: insertLink },
+          { key: 'Mod-Alt-1', run: setHeading(1) },
+          { key: 'Mod-Alt-2', run: setHeading(2) },
+          { key: 'Mod-Alt-3', run: setHeading(3) },
           {
             key: 'Alt-z',
             run: () => {
