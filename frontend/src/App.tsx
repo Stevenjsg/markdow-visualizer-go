@@ -1,11 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ForceClose,
+  LoadSettings,
   OpenFileDialog,
   SaveFileDialog,
+  SaveSettings,
   SetDirty,
   WriteFile,
 } from '../wailsjs/go/main/App';
+import { settings } from '../wailsjs/go/models';
 import { EventsOn } from '../wailsjs/runtime/runtime';
 import ConfirmClose from './components/ConfirmClose/ConfirmClose';
 import Editor from './components/Editor/Editor';
@@ -22,6 +25,30 @@ function App() {
 
   // Mantiene store.html sincronizado con store.content vía backend (RF1).
   useDebouncedMarkdown();
+
+  // RF5 (P4.5): al arrancar se aplica el tema guardado; evita persistir
+  // hasta que la carga inicial termina (settingsLoaded).
+  const settingsLoaded = useRef(false);
+  useEffect(() => {
+    LoadSettings()
+      .then((cfg) => {
+        if (cfg.theme === 'light' || cfg.theme === 'dark') {
+          useDocumentStore.getState().setTheme(cfg.theme);
+        }
+      })
+      .catch((err: unknown) => console.error('LoadSettings falló:', err))
+      .finally(() => {
+        settingsLoaded.current = true;
+      });
+  }, []);
+
+  // RF5 (P4.5): persistir el tema cuando el usuario lo cambia.
+  useEffect(() => {
+    if (!settingsLoaded.current) return;
+    LoadSettings()
+      .then((cfg) => SaveSettings(settings.Settings.createFrom({ ...cfg, theme })))
+      .catch((err: unknown) => console.error('SaveSettings falló:', err));
+  }, [theme]);
 
   // RF4 (P4.4): el backend refleja isDirty en el título de la ventana y lo
   // usa en OnBeforeClose para decidir si interceptar el cierre.
