@@ -2,6 +2,13 @@ import { create } from 'zustand';
 
 export type Theme = 'light' | 'dark';
 
+// Mensaje de estado global de la UI (P5.4): feedback de operaciones de
+// archivo y errores de bindings, mostrado por la StatusBar.
+export interface StatusMessage {
+  type: 'info' | 'error';
+  text: string;
+}
+
 // Estado del documento en edición (SDD §5, gestión de estado con Zustand).
 // Este store NO conoce wailsjs: los componentes/hooks llaman a los bindings
 // y vuelcan aquí los resultados, lo que permite testearlo sin backend.
@@ -18,6 +25,8 @@ export interface DocumentState {
   theme: Theme;
   /** Proporción del ancho que ocupa el editor (0.2–0.8, P5.2). */
   splitRatio: number;
+  /** Mensaje de estado visible en la StatusBar, o null (P5.4). */
+  status: StatusMessage | null;
 
   setContent: (content: string) => void;
   setHtml: (html: string) => void;
@@ -25,6 +34,7 @@ export interface DocumentState {
   markClean: () => void;
   setTheme: (theme: Theme) => void;
   setSplitRatio: (ratio: number) => void;
+  setStatus: (status: StatusMessage | null) => void;
 }
 
 // Límites del divisor: ningún panel baja del 20% del ancho.
@@ -38,6 +48,7 @@ export const useDocumentStore = create<DocumentState>()((set) => ({
   isDirty: false,
   theme: 'dark',
   splitRatio: 0.5,
+  status: null,
 
   // Regla de negocio del estado: escribir marca el documento como sucio…
   setContent: (content) => set({ content, isDirty: true }),
@@ -47,4 +58,5 @@ export const useDocumentStore = create<DocumentState>()((set) => ({
   markClean: () => set({ isDirty: false }),
   setTheme: (theme) => set({ theme }),
   setSplitRatio: (ratio) => set({ splitRatio: Math.min(MAX_SPLIT, Math.max(MIN_SPLIT, ratio)) }),
+  setStatus: (status) => set({ status }),
 }));

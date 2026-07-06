@@ -5,6 +5,24 @@ import { useDocumentStore } from '../../store/documentStore';
 function Preview() {
   const html = useDocumentStore((s) => s.html);
 
+  // P5.4: estado vacío con ayuda mínima cuando no hay documento.
+  if (!html) {
+    return (
+      <div className="flex h-full items-center justify-center p-8 text-center text-neutral-400 dark:text-neutral-500">
+        <div>
+          <p className="text-base font-medium">Sin contenido</p>
+          <p className="mt-2 text-sm">
+            Empieza a escribir en el editor o abre un archivo con{' '}
+            <kbd className="rounded border border-neutral-300 px-1 py-0.5 text-xs dark:border-neutral-600">
+              Ctrl/Cmd+O
+            </kbd>
+            . La vista previa se actualiza sola mientras escribes.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       aria-label="Vista previa renderizada"

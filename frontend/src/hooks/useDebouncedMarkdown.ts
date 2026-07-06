@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { ParseMarkdown } from '../../wailsjs/go/main/App';
+import { describeError } from '../lib/errors';
 import { useDocumentStore } from '../store/documentStore';
 
 // Pausa de escritura antes de llamar al backend (SDD §6, ~200ms). Junto al
@@ -10,8 +11,7 @@ const DEBOUNCE_MS = 200;
 // escritura, pide a Go el HTML y lo vuelca en store.html.
 // - No llama a Go en cada tecla: el timer se reinicia con cada cambio.
 // - Cancela el resultado pendiente si llega contenido nuevo o al desmontar.
-// - Un error del binding no rompe la UI (se registra en consola; el manejo
-//   visible de errores se centraliza en P5.4).
+// - Un error del binding no rompe la UI: se muestra en la StatusBar (P5.4).
 export function useDebouncedMarkdown(): void {
   const content = useDocumentStore((s) => s.content);
   const setHtml = useDocumentStore((s) => s.setHtml);
@@ -25,7 +25,12 @@ export function useDebouncedMarkdown(): void {
           if (!cancelled) setHtml(html);
         })
         .catch((err: unknown) => {
-          if (!cancelled) console.error('ParseMarkdown falló:', err);
+          if (!cancelled) {
+            useDocumentStore.getState().setStatus({
+              type: 'error',
+              text: `No se pudo renderizar la vista previa: ${describeError(err)}`,
+            });
+          }
         });
     }, DEBOUNCE_MS);
 

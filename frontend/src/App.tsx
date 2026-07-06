@@ -14,9 +14,11 @@ import { EventsOn } from '../wailsjs/runtime/runtime';
 import ConfirmClose from './components/ConfirmClose/ConfirmClose';
 import Editor from './components/Editor/Editor';
 import Preview from './components/Preview/Preview';
+import StatusBar from './components/StatusBar/StatusBar';
 import Toolbar from './components/Toolbar/Toolbar';
 import { useDebouncedMarkdown } from './hooks/useDebouncedMarkdown';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+import { describeError } from './lib/errors';
 import { useDocumentStore } from './store/documentStore';
 
 // Raíz de la app: Toolbar + Editor | Preview (SDD §5). El tema vive en el
@@ -47,6 +49,22 @@ function App() {
   // Mantiene store.html sincronizado con store.content vía backend (RF1).
   useDebouncedMarkdown();
 
+  // P5.4: feedback centralizado en la StatusBar. Los mensajes informativos
+  // se autolimpian; los errores permanecen hasta que el usuario los cierra.
+  const infoTimer = useRef<number | undefined>(undefined);
+  const showInfo = (text: string) => {
+    const { setStatus } = useDocumentStore.getState();
+    setStatus({ type: 'info', text });
+    window.clearTimeout(infoTimer.current);
+    infoTimer.current = window.setTimeout(() => setStatus(null), 3000);
+  };
+  const showError = (prefix: string, err: unknown) => {
+    window.clearTimeout(infoTimer.current);
+    useDocumentStore
+      .getState()
+      .setStatus({ type: 'error', text: `${prefix}: ${describeError(err)}` });
+  };
+
   // RF5 (P4.5) + P5.3: al arrancar se aplica el tema guardado y se restaura
   // el último archivo abierto; evita persistir hasta terminar la carga
   // inicial (settingsLoaded).
@@ -72,10 +90,11 @@ function App() {
           }
         }
       })
-      .catch((err: unknown) => console.error('LoadSettings falló:', err))
+      .catch((err: unknown) => showError('No se pudo cargar la configuración', err))
       .finally(() => {
         settingsLoaded.current = true;
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- solo al montar
   }, []);
 
   // P5.3: recuerda el último archivo abierto/guardado para la próxima sesión.
@@ -117,8 +136,9 @@ function App() {
       setFilePath(file.path);
       markClean();
       persistLastOpenedFile(file.path);
+      showInfo(`Abierto ${file.path}`);
     } catch (err: unknown) {
-      console.error('No se pudo abrir el archivo:', err); // P5.4: feedback visual
+      showError('No se pudo abrir el archivo', err);
     }
   };
   // RF3 (P4.3): Guardar como pide destino con el diálogo nativo y actualiza la ruta.
@@ -131,8 +151,9 @@ function App() {
       setFilePath(path);
       markClean();
       persistLastOpenedFile(path);
+      showInfo(`Guardado en ${path}`);
     } catch (err: unknown) {
-      console.error('No se pudo guardar el archivo:', err); // P5.4: feedback visual
+      showError('No se pudo guardar el archivo', err);
     }
   };
 
@@ -146,8 +167,9 @@ function App() {
     try {
       await WriteFile(filePath, content);
       markClean();
+      showInfo(`Guardado en ${filePath}`);
     } catch (err: unknown) {
-      console.error('No se pudo guardar el archivo:', err); // P5.4: feedback visual
+      showError('No se pudo guardar el archivo', err);
     }
   };
 
@@ -192,6 +214,8 @@ function App() {
             <Preview />
           </section>
         </main>
+
+        <StatusBar />
 
         <ConfirmClose
           open={closeRequested}
