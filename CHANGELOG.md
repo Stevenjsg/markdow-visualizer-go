@@ -28,5 +28,12 @@ vista previa en vivo, 100% local (Go + Wails v2 + React/TypeScript).
   payloads XSS; informe en `docs/security-review.md`.
 - Estados de UI (vacío/feedback/error legible), accesibilidad (atajos visibles,
   navegación por teclado, aria) y CI multiplataforma en GitHub Actions.
+- **Cerrar archivo** (botón ✕ y Ctrl/Cmd+W) con confirmación si hay cambios;
+  al cerrar, la app no restaura ese archivo en el siguiente arranque.
+- **Ajuste de línea** del editor conmutable como VS Code (Alt+Z o botón de la
+  Toolbar) y persistente; el preview ya no scrollea en horizontal (las tablas
+  anchas y los bloques de código scrollean dentro de sí mismos).
+- **Atajos de formato Markdown:** negrita Ctrl/Cmd+B, cursiva Ctrl/Cmd+I,
+  tachado Ctrl/Cmd+Shift+X, enlace Ctrl/Cmd+K y títulos 1–3 con Ctrl/Cmd+Alt+1–3.
 
 [0.1.0]: https://github.com/Stevenjsg/markdow-visualizer-go/releases/tag/v0.1.0

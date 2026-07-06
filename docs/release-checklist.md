@@ -80,6 +80,16 @@ desarrollo: sin Go, Node ni Wails) antes de publicar la v0.1.
 - [ ] Paneles redimensionables con el divisor (ratón y flechas con foco).
 - [ ] Un error de E/S (p. ej. guardar en ruta protegida como `C:\Windows\`) se
       comunica de forma legible en la barra de estado, sin romper la app.
+- [ ] **Cerrar archivo** (✕ o Ctrl/Cmd+W): sin cambios cierra directo; con
+      cambios muestra Guardar/Descartar/Cancelar. Tras cerrar y reiniciar, la
+      app NO restaura el archivo cerrado.
+- [ ] **Ajuste de línea**: Alt+Z y el botón "⤶ Ajuste" lo alternan; con wrap
+      desactivado el editor scrollea en horizontal; la preferencia persiste
+      tras reiniciar.
+- [ ] **Atajos de formato** en el editor: Ctrl+B/I/K, Ctrl+Shift+X y
+      Ctrl+Alt+1–3 aplican el Markdown esperado sobre la selección.
+- [ ] Documento con una tabla ancha y una URL larguísima: el panel del preview
+      NO scrollea en horizontal (la tabla sí, por dentro).
 
 ---
 
