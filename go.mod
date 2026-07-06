@@ -2,7 +2,10 @@ module github.com/Stevenjsg/markdow-visualizer-go
 
 go 1.26.4
 
-require github.com/wailsapp/wails/v2 v2.13.0
+require (
+	github.com/wailsapp/wails/v2 v2.13.0
+	github.com/yuin/goldmark v1.8.2
+)
 
 require (
 	git.sr.ht/~jackmordaunt/go-toast/v2 v2.0.3 // indirect
