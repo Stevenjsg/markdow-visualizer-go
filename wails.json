@@ -9,5 +9,12 @@
   "author": {
     "name": "Steven J. Silva Gomez",
     "email": "stevenibz-96@hotmail.com"
+  },
+  "info": {
+    "companyName": "Steven J. Silva Gomez",
+    "productName": "MarkView",
+    "productVersion": "0.1.0",
+    "copyright": "© 2026 Steven J. Silva Gomez",
+    "comments": "Editor de Markdown con vista previa en vivo, 100% local."
   }
 }
