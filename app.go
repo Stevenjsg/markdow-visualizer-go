@@ -29,6 +29,9 @@ type App struct {
 	isDirty bool
 	// forceQuit salta la confirmación cuando el usuario ya decidió cerrar.
 	forceQuit bool
+	// startupFile es la ruta absoluta pedida por la CLI (`mrw archivo.md`),
+	// o "" si no hubo argumento. La asigna main.go antes de arrancar Wails.
+	startupFile string
 }
 
 // NewApp recibe sus dependencias por constructor (DI explícita, sin
@@ -127,6 +130,29 @@ func (a *App) LoadSettings() (settings.Settings, error) {
 // SaveSettings persiste la configuración del usuario (RF5).
 func (a *App) SaveSettings(cfg settings.Settings) error {
 	return a.settings.Save(cfg)
+}
+
+// StartupFile es el archivo pedido por la línea de comandos (`mrw archivo.md`).
+// Path == "" significa que no hubo argumento (arranque normal).
+type StartupFile struct {
+	Path    string `json:"path"`
+	Content string `json:"content"`
+	// IsNew indica que el archivo aún no existe: la UI abre un buffer vacío
+	// con esa ruta y el archivo se crea en el primer Guardar (como `code`).
+	IsNew bool `json:"isNew"`
+}
+
+// GetStartupFile devuelve el archivo pedido por la CLI al arrancar, leyendo
+// su contenido si existe (delegado en files.ReadFileIfExists).
+func (a *App) GetStartupFile() (StartupFile, error) {
+	if a.startupFile == "" {
+		return StartupFile{}, nil
+	}
+	content, exists, err := a.files.ReadFileIfExists(a.startupFile)
+	if err != nil {
+		return StartupFile{}, err
+	}
+	return StartupFile{Path: a.startupFile, Content: content, IsNew: !exists}, nil
 }
 
 // FileContent agrupa la ruta elegida en un diálogo y su contenido (RF2).

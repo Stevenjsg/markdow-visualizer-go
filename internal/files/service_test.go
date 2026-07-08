@@ -99,6 +99,56 @@ func TestWriteFileToMissingDirectory(t *testing.T) {
 	}
 }
 
+// TestReadFileIfExistsExisting (CLI): con archivo presente devuelve su
+// contenido y exists=true.
+func TestReadFileIfExistsExisting(t *testing.T) {
+	svc := NewService()
+	path := filepath.Join(t.TempDir(), "nota.md")
+	want := "# desde la CLI\n"
+	if err := os.WriteFile(path, []byte(want), 0o644); err != nil {
+		t.Fatalf("preparando el archivo de prueba: %v", err)
+	}
+
+	got, exists, err := svc.ReadFileIfExists(path)
+	if err != nil {
+		t.Fatalf("ReadFileIfExists devolvió error inesperado: %v", err)
+	}
+	if !exists {
+		t.Errorf("exists = false para un archivo presente")
+	}
+	if got != want {
+		t.Errorf("ReadFileIfExists = %q; se esperaba %q", got, want)
+	}
+}
+
+// TestReadFileIfExistsMissing (CLI): una ruta inexistente NO es un error —
+// `mrw nuevo.md` abre un buffer nuevo que se creará al guardar.
+func TestReadFileIfExistsMissing(t *testing.T) {
+	svc := NewService()
+	path := filepath.Join(t.TempDir(), "no-existe.md")
+
+	got, exists, err := svc.ReadFileIfExists(path)
+	if err != nil {
+		t.Fatalf("ReadFileIfExists sobre ruta inexistente devolvió error: %v", err)
+	}
+	if exists {
+		t.Errorf("exists = true para una ruta inexistente")
+	}
+	if got != "" {
+		t.Errorf("contenido = %q para una ruta inexistente; se esperaba \"\"", got)
+	}
+}
+
+// TestReadFileIfExistsDirectory (CLI): un directorio sí es un error claro
+// (MarkView abre archivos, no carpetas).
+func TestReadFileIfExistsDirectory(t *testing.T) {
+	svc := NewService()
+
+	if _, _, err := svc.ReadFileIfExists(t.TempDir()); err == nil {
+		t.Fatalf("ReadFileIfExists sobre un directorio devolvió nil; se esperaba error")
+	}
+}
+
 // TestWriteFileEmptyContent (P6.1): guardar contenido vacío trunca el archivo
 // (caso válido: el usuario borró todo y guardó).
 func TestWriteFileEmptyContent(t *testing.T) {

@@ -6,6 +6,10 @@ export function ForceClose() {
   return window['go']['main']['App']['ForceClose']();
 }
 
+export function GetStartupFile() {
+  return window['go']['main']['App']['GetStartupFile']();
+}
+
 export function LoadSettings() {
   return window['go']['main']['App']['LoadSettings']();
 }

@@ -6,7 +6,9 @@
 package files
 
 import (
+	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 )
 
@@ -27,6 +29,28 @@ func (s *Service) ReadFile(path string) (string, error) {
 		return "", fmt.Errorf("leer el archivo %q: %w", path, err)
 	}
 	return string(data), nil
+}
+
+// ReadFileIfExists lee el archivo si existe. Una ruta inexistente no es un
+// error (exists=false): la CLI la trata como un buffer nuevo que se creará
+// al guardar. Un directorio sí es un error (MarkView abre archivos).
+func (s *Service) ReadFileIfExists(path string) (content string, exists bool, err error) {
+	info, err := os.Stat(path)
+	if errors.Is(err, fs.ErrNotExist) {
+		return "", false, nil
+	}
+	if err != nil {
+		return "", false, fmt.Errorf("inspeccionar la ruta %q: %w", path, err)
+	}
+	if info.IsDir() {
+		return "", false, fmt.Errorf("la ruta %q es un directorio, no un archivo Markdown", path)
+	}
+
+	content, err = s.ReadFile(path)
+	if err != nil {
+		return "", false, err
+	}
+	return content, true, nil
 }
 
 // WriteFile crea o sobrescribe el archivo en path con el contenido dado.

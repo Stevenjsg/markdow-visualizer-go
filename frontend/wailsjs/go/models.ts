@@ -14,6 +14,22 @@ export namespace main {
 	        this.content = source["content"];
 	    }
 	}
+	export class StartupFile {
+	    path: string;
+	    content: string;
+	    isNew: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new StartupFile(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.path = source["path"];
+	        this.content = source["content"];
+	        this.isNew = source["isNew"];
+	    }
+	}
 
 }
 

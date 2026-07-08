@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   ForceClose,
+  GetStartupFile,
   LoadSettings,
   OpenFileDialog,
   ReadFile,
@@ -74,9 +75,16 @@ function App() {
       .setStatus({ type: 'error', text: `${prefix}: ${describeError(err)}` });
   };
 
+  // P5.3: recuerda el último archivo abierto/guardado para la próxima sesión.
+  const persistLastOpenedFile = (path: string) => {
+    LoadSettings()
+      .then((cfg) => SaveSettings(settings.Settings.createFrom({ ...cfg, lastOpenedFile: path })))
+      .catch((err: unknown) => console.error('No se pudo recordar el último archivo:', err));
+  };
+
   // RF5 (P4.5) + P5.3: al arrancar se aplica el tema guardado y se restaura
-  // el último archivo abierto; evita persistir hasta terminar la carga
-  // inicial (settingsLoaded).
+  // el archivo de la CLI o el último abierto; evita persistir hasta terminar
+  // la carga inicial (settingsLoaded).
   const settingsLoaded = useRef(false);
   useEffect(() => {
     LoadSettings()
@@ -86,6 +94,31 @@ function App() {
         }
         useDocumentStore.getState().setWordWrap(cfg.wordWrap);
         useDocumentStore.getState().setFormatToolbar(cfg.formatToolbar);
+
+        // CLI (`mrw archivo.md`): el archivo pedido por la línea de comandos
+        // tiene prioridad sobre la restauración del último archivo abierto.
+        try {
+          const startup = await GetStartupFile();
+          if (startup.path) {
+            const { setContent, setFilePath, markClean } = useDocumentStore.getState();
+            setContent(startup.content);
+            setFilePath(startup.path);
+            markClean();
+            persistLastOpenedFile(startup.path);
+            showInfo(
+              startup.isNew
+                ? `Archivo nuevo: ${startup.path} (se creará al guardar)`
+                : `Abierto ${startup.path}`,
+            );
+            return;
+          }
+        } catch (err: unknown) {
+          // P. ej. la ruta es un directorio: se informa y se arranca vacío,
+          // sin pisar el error restaurando el último archivo.
+          showError('No se pudo abrir el archivo de la línea de comandos', err);
+          return;
+        }
+
         if (cfg.lastOpenedFile) {
           try {
             const content = await ReadFile(cfg.lastOpenedFile);
@@ -106,13 +139,6 @@ function App() {
         settingsLoaded.current = true;
       });
   }, []);
-
-  // P5.3: recuerda el último archivo abierto/guardado para la próxima sesión.
-  const persistLastOpenedFile = (path: string) => {
-    LoadSettings()
-      .then((cfg) => SaveSettings(settings.Settings.createFrom({ ...cfg, lastOpenedFile: path })))
-      .catch((err: unknown) => console.error('No se pudo recordar el último archivo:', err));
-  };
 
   // RF5 (P4.5): persistir tema, ajuste de línea y botonera de formato cuando
   // el usuario los cambia.
