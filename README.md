@@ -13,7 +13,9 @@
 - Editor de Markdown con resaltado de sintaxis
 - Vista previa en vivo (debounce, sin lag al escribir)
 - Abrir / Guardar / Guardar como sobre archivos `.md` locales
-- Indicador de cambios sin guardar
+- Indicador y confirmación de cambios sin guardar (al cerrar o cambiar de archivo)
+- Botonera de formato sobre el editor (colapsable con "Aa Formato")
+- CLI `mrw archivo.md` para abrir desde la terminal, como `code`
 - Tema claro/oscuro con preferencia persistente
 - Multiplataforma: Windows, macOS y Linux
 
@@ -102,6 +104,26 @@ Requisitos y particularidades por plataforma:
 El workflow de CI ([`.github/workflows/ci.yml`](./.github/workflows/ci.yml)) compila
 en las tres plataformas en cada push, para detectar problemas multiplataforma pronto.
 
+### CLI `mrw` (Windows)
+
+Instala el comando `mrw` para abrir MarkView desde la terminal, al estilo de `code`:
+
+```powershell
+wails build                 # genera build/bin/MarkView.exe
+.\scripts\install-cli.ps1   # copia a %LocalAppData%\Programs\MarkView y lo añade al PATH del usuario
+```
+
+En una terminal **nueva**:
+
+```powershell
+mrw notas.md   # abre notas.md; si no existe, abre un buffer con esa ruta que se crea al guardar
+mrw            # abre MarkView vacío
+```
+
+`mrw` no bloquea la terminal y cada invocación abre una ventana independiente.
+Para revertir: `.\scripts\install-cli.ps1 -Uninstall`. Con un binario de un
+release descargado: `.\scripts\install-cli.ps1 -SourceDir C:\ruta\a\la\descarga`.
+
 ### Lint y formato
 
 ```bash
@@ -128,6 +150,9 @@ La configuración vive en `.golangci.yml`, `frontend/eslint.config.js`, `fronten
 | Insertar enlace | `Ctrl/Cmd+K` |
 | Título 1–3 | `Ctrl/Cmd+Alt+1…3` |
 | Ajuste de línea del editor | `Alt+Z` |
+
+Los atajos de formato también están disponibles como botones en la **botonera
+de formato** sobre el editor (se colapsa desde "Aa Formato" en la Toolbar).
 
 ## 📖 Documentación
 

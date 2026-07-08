@@ -97,6 +97,25 @@ desarrollo: sin Go, Node ni Wails) antes de publicar la v0.1.
       Ctrl+Alt+1–3 aplican el Markdown esperado sobre la selección.
 - [ ] Documento con una tabla ancha y una URL larguísima: el panel del preview
       NO scrollea en horizontal (la tabla sí, por dentro).
+- [ ] **Botonera de formato**: los botones B/I/S/enlace/H1–H3 aplican el
+      Markdown sobre la selección sin que el editor pierda la selección;
+      "Aa Formato" la colapsa/expande y el estado persiste tras reiniciar.
+- [ ] **Abrir con cambios sin guardar**: botón Abrir o Ctrl/Cmd+O con ● activo
+      muestra Guardar/Descartar/Cancelar antes del diálogo de apertura.
+
+## 10. CLI `mrw` (Windows)
+
+- [ ] `scripts\install-cli.ps1` instala sin errores y sin pedir administrador;
+      en una terminal NUEVA `mrw` está en el PATH.
+- [ ] `mrw archivo.md` (ruta relativa) abre el archivo y no bloquea la terminal.
+- [ ] `mrw inexistente.md` abre un buffer con esa ruta; al Guardar, el archivo
+      se crea en disco.
+- [ ] `mrw otro.md` con la app ya abierta: se abre una segunda ventana
+      independiente (decisión: sin single-instance).
+- [ ] `mrw C:\una\carpeta` muestra un error legible en la barra de estado y la
+      app arranca vacía.
+- [ ] `scripts\install-cli.ps1 -Uninstall` elimina la carpeta y la entrada del
+      PATH de usuario.
 
 ---
 

@@ -36,5 +36,13 @@ vista previa en vivo, 100% local (Go + Wails v2 + React/TypeScript).
   anchas y los bloques de código scrollean dentro de sí mismos).
 - **Atajos de formato Markdown:** negrita Ctrl/Cmd+B, cursiva Ctrl/Cmd+I,
   tachado Ctrl/Cmd+Shift+X, enlace Ctrl/Cmd+K y títulos 1–3 con Ctrl/Cmd+Alt+1–3.
+- **Botonera de formato** sobre el editor con los mismos comandos que los
+  atajos; se colapsa desde "Aa Formato" en la Toolbar y su visibilidad
+  persiste entre sesiones.
+- **Confirmación al abrir otro archivo** con cambios sin guardar (mismo modal
+  Guardar/Descartar/Cancelar que al cerrar).
+- **CLI `mrw`:** `mrw archivo.md` abre MarkView desde la terminal (si el
+  archivo no existe, se crea al guardar); instalación por usuario con
+  `scripts/install-cli.ps1` (shim `mrw.cmd` + PATH, con `-Uninstall`).
 
 [0.1.0]: https://github.com/Stevenjsg/markdow-visualizer-go/releases/tag/v0.1.0
