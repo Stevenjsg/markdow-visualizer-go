@@ -142,7 +142,7 @@ function App() {
   }, []);
 
   // RF2 (P4.2): diálogo nativo -> contenido y ruta al store, recién abierto = limpio.
-  const handleOpen = async () => {
+  const doOpen = async () => {
     try {
       const file = await OpenFileDialog();
       if (!file.path) return; // el usuario canceló el diálogo
@@ -155,6 +155,30 @@ function App() {
     } catch (err: unknown) {
       showError('No se pudo abrir el archivo', err);
     }
+  };
+
+  // Abrir otro archivo reemplaza el documento en esta ventana, así que con
+  // cambios sin guardar se confirma primero (mismo modal que cerrar).
+  const [openFileRequested, setOpenFileRequested] = useState(false);
+  const handleOpen = async () => {
+    if (useDocumentStore.getState().isDirty) {
+      setOpenFileRequested(true);
+      return;
+    }
+    await doOpen();
+  };
+  const handleOpenFileSave = async () => {
+    await handleSave();
+    setOpenFileRequested(false);
+    if (!useDocumentStore.getState().isDirty) {
+      await doOpen(); // solo se abre si el guardado limpió el documento
+    }
+  };
+  const handleOpenFileDiscard = async () => {
+    setOpenFileRequested(false);
+    // Descartar = seguir sin guardar; el contenido solo se reemplaza si el
+    // usuario elige de verdad un archivo en el diálogo.
+    await doOpen();
   };
   // RF3 (P4.3): Guardar como pide destino con el diálogo nativo y actualiza la ruta.
   const handleSaveAs = async () => {
@@ -284,6 +308,15 @@ function App() {
           onSave={handleConfirmSave}
           onDiscard={handleConfirmDiscard}
           onCancel={() => setCloseRequested(false)}
+        />
+
+        <ConfirmClose
+          open={openFileRequested}
+          title="¿Guardar los cambios antes de abrir otro archivo?"
+          message="Al abrir otro archivo se reemplaza el documento actual. Si descartas los cambios sin guardar, se perderán."
+          onSave={handleOpenFileSave}
+          onDiscard={handleOpenFileDiscard}
+          onCancel={() => setOpenFileRequested(false)}
         />
 
         <ConfirmClose
