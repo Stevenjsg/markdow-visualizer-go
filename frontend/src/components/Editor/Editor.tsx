@@ -1,9 +1,10 @@
 import { markdown as markdownLang, markdownLanguage } from '@codemirror/lang-markdown';
-import { Prec } from '@codemirror/state';
+import { Prec, type StateCommand } from '@codemirror/state';
 import { EditorView, keymap } from '@codemirror/view';
-import CodeMirror from '@uiw/react-codemirror';
-import { useCallback, useMemo } from 'react';
+import CodeMirror, { type ReactCodeMirrorRef } from '@uiw/react-codemirror';
+import { useCallback, useMemo, useRef } from 'react';
 import { useDocumentStore } from '../../store/documentStore';
+import FormatToolbar from '../FormatToolbar/FormatToolbar';
 import {
   insertLink,
   setHeading,
@@ -19,6 +20,17 @@ function Editor() {
   const content = useDocumentStore((s) => s.content);
   const theme = useDocumentStore((s) => s.theme);
   const wordWrap = useDocumentStore((s) => s.wordWrap);
+  const formatToolbar = useDocumentStore((s) => s.formatToolbar);
+
+  // La botonera despacha los mismos StateCommands que el keymap, directamente
+  // sobre el EditorView (que satisface { state, dispatch }).
+  const editorRef = useRef<ReactCodeMirrorRef>(null);
+  const runCommand = useCallback((cmd: StateCommand) => {
+    const view = editorRef.current?.view;
+    if (!view) return;
+    cmd(view);
+    view.focus();
+  }, []);
 
   // onChange solo se dispara con ediciones del usuario: los cambios
   // programáticos de `value` (abrir archivo) no lo invocan, así que no
@@ -59,17 +71,21 @@ function Editor() {
   }, [wordWrap]);
 
   return (
-    <div aria-label="Editor de Markdown" className="h-full">
-      <CodeMirror
-        value={content}
-        onChange={onChange}
-        theme={theme}
-        extensions={extensions}
-        height="100%"
-        placeholder="Escribe tu Markdown aquí…"
-        className="h-full text-sm"
-        basicSetup={{ lineNumbers: true, foldGutter: false, highlightActiveLine: true }}
-      />
+    <div aria-label="Editor de Markdown" className="flex h-full flex-col">
+      {formatToolbar && <FormatToolbar run={runCommand} />}
+      <div className="min-h-0 flex-1">
+        <CodeMirror
+          ref={editorRef}
+          value={content}
+          onChange={onChange}
+          theme={theme}
+          extensions={extensions}
+          height="100%"
+          placeholder="Escribe tu Markdown aquí…"
+          className="h-full text-sm"
+          basicSetup={{ lineNumbers: true, foldGutter: false, highlightActiveLine: true }}
+        />
+      </div>
     </div>
   );
 }

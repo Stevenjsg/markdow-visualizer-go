@@ -28,6 +28,7 @@ export namespace settings {
 	    windowY: number;
 	    windowMaximised: boolean;
 	    wordWrap: boolean;
+	    formatToolbar: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new Settings(source);
@@ -43,6 +44,7 @@ export namespace settings {
 	        this.windowY = source["windowY"];
 	        this.windowMaximised = source["windowMaximised"];
 	        this.wordWrap = source["wordWrap"];
+	        this.formatToolbar = source["formatToolbar"];
 	    }
 	}
 

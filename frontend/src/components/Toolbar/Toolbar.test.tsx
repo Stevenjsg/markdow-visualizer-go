@@ -63,4 +63,16 @@ describe('Toolbar', () => {
     await user.click(screen.getByRole('button', { name: 'Alternar tema claro/oscuro' }));
     expect(useDocumentStore.getState().theme).toBe('light');
   });
+
+  it('el toggle "Aa Formato" alterna store.formatToolbar y su aria-pressed', async () => {
+    const user = userEvent.setup();
+    renderToolbar();
+
+    const toggle = screen.getByRole('button', { name: 'Botonera de formato' });
+    expect(toggle).toHaveAttribute('aria-pressed', 'true'); // visible por defecto
+
+    await user.click(toggle);
+    expect(useDocumentStore.getState().formatToolbar).toBe(false);
+    expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  });
 });

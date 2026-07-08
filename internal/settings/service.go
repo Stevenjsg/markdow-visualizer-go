@@ -32,6 +32,8 @@ type Settings struct {
 	// WindowMaximised restaura el maximizado sin pisar la geometría "normal".
 	WindowMaximised bool `json:"windowMaximised"`
 	WordWrap        bool `json:"wordWrap"`
+	// FormatToolbar controla la visibilidad de la botonera de formato del editor.
+	FormatToolbar bool `json:"formatToolbar"`
 }
 
 // DefaultSettings devuelve la configuración inicial de la app.
@@ -45,6 +47,7 @@ func DefaultSettings() Settings {
 		WindowY:         -1,
 		WindowMaximised: false,
 		WordWrap:        true,
+		FormatToolbar:   true,
 	}
 }
 

@@ -21,6 +21,8 @@ function Toolbar({ onOpen, onSave, onSaveAs, onClose }: ToolbarProps) {
   const setTheme = useDocumentStore((s) => s.setTheme);
   const wordWrap = useDocumentStore((s) => s.wordWrap);
   const setWordWrap = useDocumentStore((s) => s.setWordWrap);
+  const formatToolbar = useDocumentStore((s) => s.formatToolbar);
+  const setFormatToolbar = useDocumentStore((s) => s.setFormatToolbar);
 
   return (
     <header className="flex items-center gap-1 border-b border-neutral-200 px-3 py-2 dark:border-neutral-700">
@@ -83,6 +85,16 @@ function Toolbar({ onOpen, onSave, onSaveAs, onClose }: ToolbarProps) {
             </span>
           )}
         </span>
+        <button
+          type="button"
+          className={`${buttonClass} ${formatToolbar ? 'bg-neutral-200 dark:bg-neutral-700' : ''}`}
+          onClick={() => setFormatToolbar(!formatToolbar)}
+          aria-label="Botonera de formato"
+          aria-pressed={formatToolbar}
+          title={`Botonera de formato: ${formatToolbar ? 'visible' : 'oculta'}`}
+        >
+          Aa Formato
+        </button>
         <button
           type="button"
           className={`${buttonClass} ${wordWrap ? 'bg-neutral-200 dark:bg-neutral-700' : ''}`}

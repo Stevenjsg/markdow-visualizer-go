@@ -40,6 +40,7 @@ func TestSaveLoadRoundTrip(t *testing.T) {
 		WindowY:         42,
 		WindowMaximised: true,
 		WordWrap:        false, // valor no-default: debe sobrevivir el round-trip
+		FormatToolbar:   false, // valor no-default: debe sobrevivir el round-trip
 	}
 
 	if err := svc.Save(want); err != nil {
@@ -152,5 +153,8 @@ func TestLoadPartialJSONKeepsDefaults(t *testing.T) {
 	}
 	if got.WordWrap != def.WordWrap {
 		t.Errorf("wordWrap ausente debe conservar el default %v: %+v", def.WordWrap, got)
+	}
+	if got.FormatToolbar != def.FormatToolbar {
+		t.Errorf("formatToolbar ausente debe conservar el default %v: %+v", def.FormatToolbar, got)
 	}
 }

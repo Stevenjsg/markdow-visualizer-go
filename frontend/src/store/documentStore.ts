@@ -29,6 +29,8 @@ export interface DocumentState {
   status: StatusMessage | null;
   /** Ajuste de línea del editor (persistido en settings). */
   wordWrap: boolean;
+  /** Visibilidad de la botonera de formato del editor (persistida en settings). */
+  formatToolbar: boolean;
 
   setContent: (content: string) => void;
   setHtml: (html: string) => void;
@@ -40,6 +42,7 @@ export interface DocumentState {
   setSplitRatio: (ratio: number) => void;
   setStatus: (status: StatusMessage | null) => void;
   setWordWrap: (wordWrap: boolean) => void;
+  setFormatToolbar: (formatToolbar: boolean) => void;
 }
 
 // Límites del divisor: ningún panel baja del 20% del ancho.
@@ -55,6 +58,7 @@ export const useDocumentStore = create<DocumentState>()((set) => ({
   splitRatio: 0.5,
   status: null,
   wordWrap: true,
+  formatToolbar: true,
 
   // Regla de negocio del estado: escribir marca el documento como sucio…
   setContent: (content) => set({ content, isDirty: true }),
@@ -68,4 +72,5 @@ export const useDocumentStore = create<DocumentState>()((set) => ({
   setSplitRatio: (ratio) => set({ splitRatio: Math.min(MAX_SPLIT, Math.max(MIN_SPLIT, ratio)) }),
   setStatus: (status) => set({ status }),
   setWordWrap: (wordWrap) => set({ wordWrap }),
+  setFormatToolbar: (formatToolbar) => set({ formatToolbar }),
 }));
