@@ -157,7 +157,7 @@ de formato** sobre el editor (se colapsa desde "Aa Formato" en la Toolbar).
 ## 📖 Documentación
 
 - [`docs/roadmap.md`](./docs/roadmap.md) — plan de desarrollo por sprints
-- [`docs/roadmap-v0.2.md`](./docs/roadmap-v0.2.md) — plan post-v0.1 (página 404, modo visor, CLI Linux)
+- [`docs/roadmap-v0.2.md`](./docs/roadmap-v0.2.md) — plan post-v0.1 (modo visor, navegación entre .md + 404, CLI Linux)
 - [`docs/SDD.md`](./docs/SDD.md) — decisiones de arquitectura y diseño
 
 ## 🗺️ Roadmap (resumen)

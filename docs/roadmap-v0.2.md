@@ -14,10 +14,15 @@ histórica de aprendizaje de Go.
 
 | Hito | Entregable | Tamaño | Prioridad |
 |---|---|---|---|
-| M1 | Navegación entre `.md` enlazados + página 404 | M | Alta |
-| M2 | Modo visor (solo visualizar `.md`) | M | Alta |
+| M1 | Modo visor (solo visualizar `.md`) | M | Alta |
+| M2 | Navegación entre `.md` enlazados + página 404 (solo en visor) | M | Alta |
 | M3 | CLI `mrw` para Linux/macOS | S | Media |
 | M4 | Extras del backlog (elegir) | variable | Baja |
+
+> **Decisión (2026-07-14):** los enlaces a otros `.md` navegan **solo en modo
+> visor**. En modo edición el clic sobre un enlace no navega (el preview se
+> queda quieto mientras escribes). Por eso el visor (M1) va antes que la
+> navegación (M2).
 
 Cada hito sigue la forma de trabajar del contrato: incrementos pequeños,
 TDD en el backend, un entregable = un commit, verificación completa
@@ -26,67 +31,11 @@ declararse hecho.
 
 ---
 
-## M1 — Navegación entre `.md` enlazados + página 404
-
-**Objetivo:** que los enlaces relativos del preview (`[otro doc](./otro.md)`)
-naveguen al archivo enlazado, como en un wiki o en la vista de GitHub; y si la
-ruta no resuelve, mostrar una **página 404** en el área del preview.
-
-Hoy el preview no sigue enlaces a otros archivos: la navegación está bloqueada
-por seguridad (security-review #6) y no hay resolución de rutas relativas.
-Esta funcionalidad es la pareja natural del modo visor (M2): navegar
-documentación local solo leyendo.
-
-**Propuesta:**
-
-- **Interceptar clics** en los enlaces del preview (un solo listener delegado
-  en el contenedor):
-  - Enlace relativo a `.md`/`.markdown` → resolver contra el **directorio del
-    archivo actual** (backend: `filepath.Join(dir, href)` + `filepath.Clean`)
-    y abrirlo en la app.
-  - Ancla `#seccion` → scroll dentro del preview actual.
-  - `http(s)://` → abrir en el **navegador del sistema**
-    (`runtime.BrowserOpenURL`), nunca navegar la ventana.
-  - Cualquier otro esquema (`file:`, `javascript:` ya lo quita bluemonday) →
-    ignorar.
-- **Página 404** (`FileNotFound`, React) cuando la ruta enlazada no existe o
-  es ilegible: código "404" grande, la ruta que falló y el motivo (no existe /
-  es un directorio / sin permisos), con acciones **"← Volver"** (regresa al
-  documento desde el que se hizo clic, que sigue cargado) y
-  **"Abrir otro archivo…"**. Tema claro/oscuro, `role="alert"`, español.
-- **Cambios sin guardar:** navegar a otro `.md` reutiliza la confirmación
-  Guardar/Descartar/Cancelar existente de "abrir otro archivo".
-- Backend: nuevo método de la fachada `ResolveLink(currentPath, href)` que
-  valida y resuelve; reutiliza `ReadFileIfExists`. TDD: casos de ruta
-  relativa, `..`, ancla, ruta rota, directorio.
-
-**Criterios de aceptación**
-
-- [ ] Clic en `[b](./b.md)` con `b.md` existente → el preview y el editor
-      cargan `b.md`; la Toolbar muestra la nueva ruta.
-- [ ] Enlace a `.md` inexistente → página 404 con la ruta y el motivo; el
-      documento actual no se pierde y "← Volver" lo restaura tal cual.
-- [ ] Enlace `https://` → se abre en el navegador del sistema; la ventana de
-      MarkView no navega.
-- [ ] Ancla `#titulo` → scroll dentro del preview, sin recarga.
-- [ ] Con cambios sin guardar, navegar pide Guardar/Descartar/Cancelar.
-- [ ] Tests: Go (resolución de rutas), Vitest (interceptor + componente 404).
-
-**Decisiones a confirmar:**
-
-1. ¿Historial de navegación con "atrás/adelante" (botones ⬅➡ tipo navegador)
-   o solo el "← Volver" del 404? (propuesta: solo "← Volver" en M1; historial
-   completo al backlog).
-2. Enlaces relativos a archivos NO Markdown (imágenes ya se renderizan;
-   ¿un `.txt` o `.pdf` enlazado?) → propuesta: abrir con la app por defecto
-   del sistema, o ignorar en M1.
-
----
-
-## M2 — Modo visor: solo visualizar `.md`
+## M1 — Modo visor: solo visualizar `.md`
 
 **Objetivo:** usar MarkView como *lector* de Markdown, no solo como editor —
-el preview a pantalla completa, sin el panel del editor.
+el preview a pantalla completa, sin el panel del editor. Es el prerrequisito
+de la navegación entre archivos (M2).
 
 **Propuesta:**
 
@@ -121,7 +70,71 @@ el preview a pantalla completa, sin el panel del editor.
    persistente, coherente con el resto de preferencias).
 2. Nombre del flag del CLI: `-v/--view` vs `--viewer`.
 3. ¿Asociar `mrw` como "Abrir con…" de Windows para `.md` en modo visor?
-   (fuera de alcance de M2; anotar como backlog si interesa).
+   (fuera de alcance de M1; anotar como backlog si interesa).
+
+---
+
+## M2 — Navegación entre `.md` enlazados + página 404 (solo en visor)
+
+**Objetivo:** que, **en modo visor**, los enlaces relativos del preview
+(`[otro doc](./otro.md)`) naveguen al archivo enlazado, como en un wiki; y si
+la ruta no resuelve, mostrar una **página 404** en el área del preview.
+
+**Decisión ya tomada (2026-07-14):** en modo edición los enlaces a `.md` NO
+navegan — el clic mientras se escribe no debe cambiar de documento. La
+experiencia wiki pertenece al modo lectura. (VS Code/Obsidian navegan siempre
+desde el preview; aquí se prefiere el editor predecible.)
+
+Hoy el preview no sigue enlaces a otros archivos: la navegación está bloqueada
+por seguridad (security-review #6) y no hay resolución de rutas relativas.
+
+**Propuesta:**
+
+- **Interceptar clics** en los enlaces del preview (un solo listener delegado
+  en el contenedor):
+  - En **modo visor**, enlace relativo a `.md`/`.markdown` → resolver contra
+    el **directorio del archivo actual** (backend: `filepath.Join(dir, href)`
+    + `filepath.Clean`) y abrirlo en la app.
+  - En **modo edición**, ese mismo clic no navega (sin efecto).
+  - Ancla `#seccion` → scroll dentro del preview actual (ambos modos).
+  - `http(s)://` → abrir en el **navegador del sistema**
+    (`runtime.BrowserOpenURL`), nunca navegar la ventana (ambos modos).
+  - Cualquier otro esquema (`file:`, `javascript:` ya lo quita bluemonday) →
+    ignorar.
+- **Página 404** (`FileNotFound`, React) cuando la ruta enlazada no existe o
+  es ilegible: código "404" grande, la ruta que falló y el motivo (no existe /
+  es un directorio / sin permisos), con acciones **"← Volver"** (regresa al
+  documento desde el que se hizo clic, que sigue cargado) y
+  **"Abrir otro archivo…"**. Tema claro/oscuro, `role="alert"`, español.
+- **Cambios sin guardar:** si al entrar al visor venían cambios pendientes,
+  navegar a otro `.md` reutiliza la confirmación Guardar/Descartar/Cancelar
+  existente de "abrir otro archivo".
+- Backend: nuevo método de la fachada `ResolveLink(currentPath, href)` que
+  valida y resuelve; reutiliza `ReadFileIfExists`. TDD: casos de ruta
+  relativa, `..`, ancla, ruta rota, directorio.
+
+**Criterios de aceptación**
+
+- [ ] En visor, clic en `[b](./b.md)` con `b.md` existente → carga `b.md` y
+      la Toolbar muestra la nueva ruta.
+- [ ] En modo edición, ese mismo clic NO navega.
+- [ ] Enlace a `.md` inexistente (en visor) → página 404 con la ruta y el
+      motivo; el documento actual no se pierde y "← Volver" lo restaura.
+- [ ] Enlace `https://` → se abre en el navegador del sistema; la ventana de
+      MarkView no navega (en ambos modos).
+- [ ] Ancla `#titulo` → scroll dentro del preview, sin recarga.
+- [ ] Con cambios sin guardar, navegar pide Guardar/Descartar/Cancelar.
+- [ ] Tests: Go (resolución de rutas), Vitest (interceptor por modo +
+      componente 404).
+
+**Decisiones a confirmar:**
+
+1. ¿Historial de navegación con "atrás/adelante" (botones ⬅➡ tipo navegador)
+   o solo el "← Volver" del 404? (propuesta: solo "← Volver" en M2; historial
+   completo al backlog).
+2. Enlaces relativos a archivos NO Markdown (imágenes ya se renderizan;
+   ¿un `.txt` o `.pdf` enlazado?) → propuesta: ignorar en M2; "abrir con la
+   app del sistema" al backlog.
 
 ---
 
@@ -149,7 +162,9 @@ Heredado del Sprint 8 del roadmap original, más lo surgido en v0.1:
   asociación de extensión `.md`.
 - Contador de palabras/caracteres en la barra de estado.
 - Modo visor: seguir cambios del archivo en disco (auto-recarga tipo `tail`).
-- Historial de navegación atrás/adelante entre `.md` enlazados (extiende M1).
+- Historial de navegación atrás/adelante entre `.md` enlazados (extiende M2).
+- Enlaces relativos a archivos no Markdown (`.txt`, `.pdf`…): abrir con la
+  app por defecto del sistema.
 - Reutilizar la página 404 cuando `lastOpenedFile` fue borrado/movido (hoy la
   app arranca vacía en silencio).
 
@@ -157,11 +172,12 @@ Heredado del Sprint 8 del roadmap original, más lo surgido en v0.1:
 
 ## Orden sugerido y commits
 
-1. `feat(ui): página 404 de archivo no encontrado` (M1)
-2. `feat: modo visor de solo lectura` (M2, UI + settings)
-3. `feat(cli): flag -v para abrir en modo visor` (M2, CLI)
-4. `feat(cli): instalador mrw para Linux/macOS` (M3)
-5. Backlog: un commit por extra elegido.
+1. `feat: modo visor de solo lectura` (M1, UI + settings)
+2. `feat(cli): flag -v para abrir en modo visor` (M1, CLI)
+3. `feat(preview): navegar enlaces .md en modo visor` (M2, interceptor + ResolveLink)
+4. `feat(ui): página 404 de enlace roto` (M2)
+5. `feat(cli): instalador mrw para Linux/macOS` (M3)
+6. Backlog: un commit por extra elegido.
 
-Antes de empezar M1: confirmar las decisiones marcadas y publicar v0.1.0
+Antes de empezar M1: confirmar las decisiones aún marcadas y publicar v0.1.0
 para que estos cambios entren limpios en la 0.2.0 del CHANGELOG.
