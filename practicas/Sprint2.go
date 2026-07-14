@@ -62,7 +62,7 @@ func ValidateArgs(args []string) error {
 
 func ValidatePath(path string) error {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return ErrFileNotFound
+		return fmt.Errorf("leyendo %s: %w %w", path, ErrFileNotFound, err)
 	}
 	return nil
 }
@@ -70,7 +70,7 @@ func ValidatePath(path string) error {
 func (mf *MarkdownFile) SetMarkdownFile(filePath string) error {
 	pathAbs, err := filepath.Abs(filePath)
 	if err != nil {
-		return ErrInvalidPath
+		return fmt.Errorf("leyendo %s: %w %w", filePath, ErrInvalidPath, err)
 	}
 	filename := strings.TrimSuffix(filepath.Base(pathAbs), filepath.Ext(pathAbs))
 
@@ -82,7 +82,7 @@ func (mf *MarkdownFile) SetMarkdownFile(filePath string) error {
 func GetContentFromFile(filePath string) (string, error) {
 	content, err := os.ReadFile(filePath)
 	if err != nil {
-		return "", ErrReadFile
+		return "", fmt.Errorf("leyendo %s: %w %w", filePath, ErrReadFile, err)
 	}
 
 	return string(content), nil
@@ -112,7 +112,7 @@ func (ms *MarkdownStats) Analyze(content string) error {
 	ms.TotalWords = len(strings.Fields(content))
 	lines, err := CountLines(content)
 	if err != nil {
-		return ErrCountLines
+		return fmt.Errorf("analizando %s: %w", ErrCountLines, err)
 	}
 	ms.TotalLines = lines
 	return nil
