@@ -100,6 +100,11 @@ function App() {
         // tiene prioridad sobre la restauración del último archivo abierto.
         try {
           const startup = await GetStartupFile();
+          // `mrw -v`: el flag de la CLI fuerza el modo visor en este arranque
+          // (con o sin archivo), por encima de la preferencia guardada.
+          if (startup.viewer) {
+            useDocumentStore.getState().setViewerMode(true);
+          }
           if (startup.path) {
             const { setContent, setFilePath, markClean } = useDocumentStore.getState();
             setContent(startup.content);

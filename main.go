@@ -20,22 +20,28 @@ import (
 //go:embed all:frontend/dist
 var assets embed.FS
 
-// cliFilePath devuelve la ruta absoluta del primer argumento posicional de la
-// CLI (`mrw archivo.md`), o "" si no hay ninguno. Los flags (-…) se ignoran:
-// wails dev inyecta los suyos. La ruta relativa se resuelve contra el cwd de
-// la shell que invocó el comando.
-func cliFilePath(args []string) string {
+// parseCLI interpreta los argumentos de `mrw [-v|--view] [archivo.md]`: el
+// primer argumento posicional es la ruta del archivo a abrir (absoluta, se
+// resuelve contra el cwd de la shell que invocó el comando) y -v/--view
+// activa el modo visor. Los demás flags (-…) se ignoran: wails dev inyecta
+// los suyos.
+func parseCLI(args []string) (path string, viewer bool) {
 	for _, arg := range args {
-		if arg == "" || strings.HasPrefix(arg, "-") {
-			continue
+		switch {
+		case arg == "-v" || arg == "--view":
+			viewer = true
+		case arg == "" || strings.HasPrefix(arg, "-"):
+			// flag ajeno (p. ej. los de wails dev): se ignora
+		case path == "":
+			abs, err := filepath.Abs(arg)
+			if err != nil {
+				path = arg
+			} else {
+				path = abs
+			}
 		}
-		abs, err := filepath.Abs(arg)
-		if err != nil {
-			return arg
-		}
-		return abs
 	}
-	return ""
+	return path, viewer
 }
 
 func main() {
@@ -45,10 +51,11 @@ func main() {
 	settingsService := settings.NewService()
 
 	app := NewApp(renderer, fileService, settingsService)
-	// CLI (mrw): un argumento posicional abre ese archivo al arrancar. Cada
-	// invocación es una ventana independiente (decisión: sin single instance;
-	// settings.json lo escribe la última ventana en cerrarse).
-	app.startupFile = cliFilePath(os.Args[1:])
+	// CLI (mrw): un argumento posicional abre ese archivo al arrancar y
+	// -v/--view fuerza el modo visor. Cada invocación es una ventana
+	// independiente (decisión: sin single instance; settings.json lo escribe
+	// la última ventana en cerrarse).
+	app.startupFile, app.startupViewer = parseCLI(os.Args[1:])
 
 	// Create application with options
 	err := wails.Run(&options.App{

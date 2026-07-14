@@ -77,6 +77,36 @@ func TestAppGetStartupFile(t *testing.T) {
 	}
 }
 
+// TestAppGetStartupFileViewer (CLI): el flag -v/--view llega al frontend en
+// StartupFile.Viewer, con y sin archivo.
+func TestAppGetStartupFileViewer(t *testing.T) {
+	app := newTestApp(t)
+
+	// `mrw -v` sin archivo: modo visor con arranque vacío.
+	app.startupViewer = true
+	got, err := app.GetStartupFile()
+	if err != nil {
+		t.Fatalf("GetStartupFile con -v sin archivo devolvió error: %v", err)
+	}
+	if !got.Viewer || got.Path != "" {
+		t.Errorf("-v sin archivo mal reportado: %+v", got)
+	}
+
+	// `mrw -v archivo.md`: modo visor con el archivo cargado.
+	existing := filepath.Join(t.TempDir(), "nota.md")
+	if err := os.WriteFile(existing, []byte("# hola"), 0o644); err != nil {
+		t.Fatalf("preparando el archivo: %v", err)
+	}
+	app.startupFile = existing
+	got, err = app.GetStartupFile()
+	if err != nil {
+		t.Fatalf("GetStartupFile con -v y archivo devolvió error: %v", err)
+	}
+	if !got.Viewer || got.Path != existing || got.Content != "# hola" {
+		t.Errorf("-v con archivo mal reportado: %+v", got)
+	}
+}
+
 // TestAppSettingsRoundTrip: la fachada delega Load/Save en el servicio.
 func TestAppSettingsRoundTrip(t *testing.T) {
 	app := newTestApp(t)

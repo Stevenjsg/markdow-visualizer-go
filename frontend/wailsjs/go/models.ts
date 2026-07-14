@@ -18,6 +18,7 @@ export namespace main {
 	    path: string;
 	    content: string;
 	    isNew: boolean;
+	    viewer: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new StartupFile(source);
@@ -28,6 +29,7 @@ export namespace main {
 	        this.path = source["path"];
 	        this.content = source["content"];
 	        this.isNew = source["isNew"];
+	        this.viewer = source["viewer"];
 	    }
 	}
 

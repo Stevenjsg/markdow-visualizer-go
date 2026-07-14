@@ -32,6 +32,9 @@ type App struct {
 	// startupFile es la ruta absoluta pedida por la CLI (`mrw archivo.md`),
 	// o "" si no hubo argumento. La asigna main.go antes de arrancar Wails.
 	startupFile string
+	// startupViewer refleja el flag -v/--view de la CLI: arrancar en modo
+	// visor. También la asigna main.go.
+	startupViewer bool
 }
 
 // NewApp recibe sus dependencias por constructor (DI explícita, sin
@@ -140,19 +143,27 @@ type StartupFile struct {
 	// IsNew indica que el archivo aún no existe: la UI abre un buffer vacío
 	// con esa ruta y el archivo se crea en el primer Guardar (como `code`).
 	IsNew bool `json:"isNew"`
+	// Viewer indica que la CLI pidió arrancar en modo visor (-v/--view),
+	// con o sin archivo.
+	Viewer bool `json:"viewer"`
 }
 
 // GetStartupFile devuelve el archivo pedido por la CLI al arrancar, leyendo
 // su contenido si existe (delegado en files.ReadFileIfExists).
 func (a *App) GetStartupFile() (StartupFile, error) {
 	if a.startupFile == "" {
-		return StartupFile{}, nil
+		return StartupFile{Viewer: a.startupViewer}, nil
 	}
 	content, exists, err := a.files.ReadFileIfExists(a.startupFile)
 	if err != nil {
 		return StartupFile{}, err
 	}
-	return StartupFile{Path: a.startupFile, Content: content, IsNew: !exists}, nil
+	return StartupFile{
+		Path:    a.startupFile,
+		Content: content,
+		IsNew:   !exists,
+		Viewer:  a.startupViewer,
+	}, nil
 }
 
 // FileContent agrupa la ruta elegida en un diálogo y su contenido (RF2).
