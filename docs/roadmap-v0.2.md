@@ -31,7 +31,7 @@ declararse hecho.
 
 ---
 
-## M1 — Modo visor: solo visualizar `.md`
+## M1 — Modo visor: solo visualizar `.md` ✅ (2026-07-14)
 
 **Objetivo:** usar MarkView como *lector* de Markdown, no solo como editor —
 el preview a pantalla completa, sin el panel del editor. Es el prerrequisito
@@ -56,21 +56,23 @@ de la navegación entre archivos (M2).
 
 **Criterios de aceptación**
 
-- [ ] Toggle y atajo alternan el modo; el preview ocupa todo el ancho y el
+- [x] Toggle y atajo alternan el modo; el preview ocupa todo el ancho y el
       editor desaparece (no solo se encoge).
-- [ ] El modo persiste entre sesiones.
-- [ ] `mrw -v notas.md` abre en visor con el archivo renderizado.
-- [ ] Con cambios sin guardar, entrar y salir del visor no pierde nada y el
-      indicador ● se mantiene.
-- [ ] Tests: store, Toolbar, parseo de flags del CLI (Go), settings round-trip.
+- [x] El modo persiste entre sesiones.
+- [x] `mrw -v notas.md` abre en visor con el archivo renderizado.
+- [x] Con cambios sin guardar, entrar y salir del visor no pierde nada y el
+      indicador ● se mantiene (el store conserva el contenido; solo se
+      desmonta el editor).
+- [x] Tests: store, Toolbar, parseo de flags del CLI (Go), settings round-trip.
 
-**Decisiones a confirmar:**
+**Decisiones tomadas (2026-07-14):**
 
-1. ¿`viewerMode` persistente entre sesiones o solo por ventana? (propuesta:
-   persistente, coherente con el resto de preferencias).
-2. Nombre del flag del CLI: `-v/--view` vs `--viewer`.
-3. ¿Asociar `mrw` como "Abrir con…" de Windows para `.md` en modo visor?
-   (fuera de alcance de M1; anotar como backlog si interesa).
+1. `viewerMode` **persistente** entre sesiones, coherente con el resto de
+   preferencias.
+2. Flag del CLI: **`-v` / `--view`**.
+3. Asociar `mrw` como "Abrir con…" de Windows para `.md` → al backlog (M4).
+
+Commits: `5bd461f` (modo visor) · `a8e0847` (flag CLI).
 
 ---
 

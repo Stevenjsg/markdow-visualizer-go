@@ -15,7 +15,8 @@
 - Abrir / Guardar / Guardar como sobre archivos `.md` locales
 - Indicador y confirmación de cambios sin guardar (al cerrar o cambiar de archivo)
 - Botonera de formato sobre el editor (colapsable con "Aa Formato")
-- CLI `mrw archivo.md` para abrir desde la terminal, como `code`
+- Modo visor de solo lectura: el preview a todo el ancho (👁 o `Ctrl/Cmd+Shift+V`)
+- CLI `mrw archivo.md` para abrir desde la terminal, como `code` (`-v` = modo visor)
 - Tema claro/oscuro con preferencia persistente
 - Multiplataforma: Windows, macOS y Linux
 
@@ -116,8 +117,9 @@ wails build                 # genera build/bin/MarkView.exe
 En una terminal **nueva**:
 
 ```powershell
-mrw notas.md   # abre notas.md; si no existe, abre un buffer con esa ruta que se crea al guardar
-mrw            # abre MarkView vacío
+mrw notas.md      # abre notas.md; si no existe, abre un buffer con esa ruta que se crea al guardar
+mrw               # abre MarkView vacío
+mrw -v notas.md   # abre notas.md en modo visor (solo preview; también --view)
 ```
 
 `mrw` no bloquea la terminal y cada invocación abre una ventana independiente.
@@ -150,6 +152,7 @@ La configuración vive en `.golangci.yml`, `frontend/eslint.config.js`, `fronten
 | Insertar enlace | `Ctrl/Cmd+K` |
 | Título 1–3 | `Ctrl/Cmd+Alt+1…3` |
 | Ajuste de línea del editor | `Alt+Z` |
+| Modo visor (solo preview) | `Ctrl/Cmd+Shift+V` |
 
 Los atajos de formato también están disponibles como botones en la **botonera
 de formato** sobre el editor (se colapsa desde "Aa Formato" en la Toolbar).

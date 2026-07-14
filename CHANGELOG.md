@@ -3,6 +3,17 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/);
 versionado según [SemVer](https://semver.org/lang/es/).
 
+## [0.2.0] — en desarrollo
+
+### Añadido
+
+- **Modo visor** (roadmap v0.2, M1): el toggle "👁 Visor" de la Toolbar y el
+  atajo Ctrl/Cmd+Shift+V ocultan el editor y dejan el preview a todo el ancho
+  (modo lectura). La preferencia persiste entre sesiones; los toggles que solo
+  afectan al editor se ocultan mientras el visor está activo.
+- **CLI:** `mrw -v archivo.md` (o `--view`) abre directamente en modo visor,
+  también sin archivo (`mrw -v`).
+
 ## [0.1.0] — pendiente de publicación
 
 Primera versión funcional de **MarkView**: editor de Markdown de escritorio con
@@ -45,4 +56,5 @@ vista previa en vivo, 100% local (Go + Wails v2 + React/TypeScript).
   archivo no existe, se crea al guardar); instalación por usuario con
   `scripts/install-cli.ps1` (shim `mrw.cmd` + PATH, con `-Uninstall`).
 
+[0.2.0]: https://github.com/Stevenjsg/markdow-visualizer-go/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/Stevenjsg/markdow-visualizer-go/releases/tag/v0.1.0
