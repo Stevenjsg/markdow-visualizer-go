@@ -14,7 +14,7 @@ histórica de aprendizaje de Go.
 
 | Hito | Entregable | Tamaño | Prioridad |
 |---|---|---|---|
-| M1 | Página 404 — "archivo no encontrado" | S | Alta |
+| M1 | Navegación entre `.md` enlazados + página 404 | M | Alta |
 | M2 | Modo visor (solo visualizar `.md`) | M | Alta |
 | M3 | CLI `mrw` para Linux/macOS | S | Media |
 | M4 | Extras del backlog (elegir) | variable | Baja |
@@ -26,46 +26,60 @@ declararse hecho.
 
 ---
 
-## M1 — Página 404: archivo no encontrado
+## M1 — Navegación entre `.md` enlazados + página 404
 
-**Problema actual:** cuando el archivo que la app intenta abrir no está
-disponible, la reacción es silenciosa o mínima:
+**Objetivo:** que los enlaces relativos del preview (`[otro doc](./otro.md)`)
+naveguen al archivo enlazado, como en un wiki o en la vista de GitHub; y si la
+ruta no resuelve, mostrar una **página 404** en el área del preview.
 
-- `lastOpenedFile` borrado/movido entre sesiones → la app arranca vacía sin
-  explicar por qué.
-- Ruta ilegible o directorio pasado a `mrw` → solo un aviso en la barra de
-  estado.
+Hoy el preview no sigue enlaces a otros archivos: la navegación está bloqueada
+por seguridad (security-review #6) y no hay resolución de rutas relativas.
+Esta funcionalidad es la pareja natural del modo visor (M2): navegar
+documentación local solo leyendo.
 
-**Propuesta:** un estado de UI dedicado, estilo "404", que ocupe el área del
-preview cuando el archivo solicitado no se pudo cargar.
+**Propuesta:**
 
-- Componente `FileNotFound` (React) con: código "404" grande, la ruta que
-  falló, el motivo legible (no existe / es un directorio / sin permisos) y dos
-  acciones: **"Abrir otro archivo…"** (dispara el diálogo de abrir) y
-  **"Nuevo documento"** (limpia el estado y va al editor vacío).
-- Backend: `GetStartupFile` y la restauración de `lastOpenedFile` ya
-  distinguen los casos (`ReadFileIfExists` devuelve `exists`/error); solo hay
-  que propagar el motivo al frontend en lugar de tragarlo.
-- El caso `mrw inexistente.md` NO cambia: sigue abriendo un buffer nuevo que
-  se crea al guardar (decisión tomada en v0.1, estilo `code`). El 404 aplica a
-  rutas **ilegibles** (directorio, sin permisos, E/S) y al `lastOpenedFile`
-  desaparecido.
-- Tema claro/oscuro, accesible (`role="alert"`), textos en español.
+- **Interceptar clics** en los enlaces del preview (un solo listener delegado
+  en el contenedor):
+  - Enlace relativo a `.md`/`.markdown` → resolver contra el **directorio del
+    archivo actual** (backend: `filepath.Join(dir, href)` + `filepath.Clean`)
+    y abrirlo en la app.
+  - Ancla `#seccion` → scroll dentro del preview actual.
+  - `http(s)://` → abrir en el **navegador del sistema**
+    (`runtime.BrowserOpenURL`), nunca navegar la ventana.
+  - Cualquier otro esquema (`file:`, `javascript:` ya lo quita bluemonday) →
+    ignorar.
+- **Página 404** (`FileNotFound`, React) cuando la ruta enlazada no existe o
+  es ilegible: código "404" grande, la ruta que falló y el motivo (no existe /
+  es un directorio / sin permisos), con acciones **"← Volver"** (regresa al
+  documento desde el que se hizo clic, que sigue cargado) y
+  **"Abrir otro archivo…"**. Tema claro/oscuro, `role="alert"`, español.
+- **Cambios sin guardar:** navegar a otro `.md` reutiliza la confirmación
+  Guardar/Descartar/Cancelar existente de "abrir otro archivo".
+- Backend: nuevo método de la fachada `ResolveLink(currentPath, href)` que
+  valida y resuelve; reutiliza `ReadFileIfExists`. TDD: casos de ruta
+  relativa, `..`, ancla, ruta rota, directorio.
 
 **Criterios de aceptación**
 
-- [ ] Borrar el último archivo abierto y reabrir la app → se muestra el 404
-      con la ruta y el motivo; "Abrir otro archivo…" funciona.
-- [ ] `mrw C:\una\carpeta` → 404 con motivo "es un directorio" (además del
-      aviso actual o en su lugar).
-- [ ] "Nuevo documento" deja la app en el estado vacío normal y el 404 no
-      reaparece al reiniciar.
-- [ ] Tests: Vitest del componente y de la rama de estado; Go para la
-      propagación del motivo.
+- [ ] Clic en `[b](./b.md)` con `b.md` existente → el preview y el editor
+      cargan `b.md`; la Toolbar muestra la nueva ruta.
+- [ ] Enlace a `.md` inexistente → página 404 con la ruta y el motivo; el
+      documento actual no se pierde y "← Volver" lo restaura tal cual.
+- [ ] Enlace `https://` → se abre en el navegador del sistema; la ventana de
+      MarkView no navega.
+- [ ] Ancla `#titulo` → scroll dentro del preview, sin recarga.
+- [ ] Con cambios sin guardar, navegar pide Guardar/Descartar/Cancelar.
+- [ ] Tests: Go (resolución de rutas), Vitest (interceptor + componente 404).
 
-**Decisión a confirmar:** ¿el 404 reemplaza el aviso de la barra de estado o
-conviven ambos? (propuesta: lo reemplaza; la barra queda para errores de
-guardado).
+**Decisiones a confirmar:**
+
+1. ¿Historial de navegación con "atrás/adelante" (botones ⬅➡ tipo navegador)
+   o solo el "← Volver" del 404? (propuesta: solo "← Volver" en M1; historial
+   completo al backlog).
+2. Enlaces relativos a archivos NO Markdown (imágenes ya se renderizan;
+   ¿un `.txt` o `.pdf` enlazado?) → propuesta: abrir con la app por defecto
+   del sistema, o ignorar en M1.
 
 ---
 
@@ -135,6 +149,9 @@ Heredado del Sprint 8 del roadmap original, más lo surgido en v0.1:
   asociación de extensión `.md`.
 - Contador de palabras/caracteres en la barra de estado.
 - Modo visor: seguir cambios del archivo en disco (auto-recarga tipo `tail`).
+- Historial de navegación atrás/adelante entre `.md` enlazados (extiende M1).
+- Reutilizar la página 404 cuando `lastOpenedFile` fue borrado/movido (hoy la
+  app arranca vacía en silencio).
 
 ---
 
