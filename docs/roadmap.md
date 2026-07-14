@@ -179,3 +179,7 @@ Elegir según interés:
 <!-- Nota (2026-07-06): los sprints de aprendizaje de Go de este roadmap quedan como
 referencia histórica. La construcción real de la aplicación la guía, prompt a prompt,
 docs/plan-desarrollo-ia.md (fases P0.x–P8.x). -->
+
+> **Continuación (2026-07-14):** el plan posterior a la v0.1.0 (página 404,
+> modo visor de solo lectura, CLI para Linux/macOS y backlog) está en
+> [`roadmap-v0.2.md`](./roadmap-v0.2.md).
