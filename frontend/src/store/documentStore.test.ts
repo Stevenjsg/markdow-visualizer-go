@@ -43,6 +43,12 @@ describe('documentStore', () => {
     expect(state.isDirty).toBe(false);
   });
 
+  it('setViewerMode alterna el modo visor (desactivado por defecto)', () => {
+    expect(useDocumentStore.getState().viewerMode).toBe(false);
+    useDocumentStore.getState().setViewerMode(true);
+    expect(useDocumentStore.getState().viewerMode).toBe(true);
+  });
+
   it('setWordWrap alterna el ajuste de línea', () => {
     expect(useDocumentStore.getState().wordWrap).toBe(true);
     useDocumentStore.getState().setWordWrap(false);

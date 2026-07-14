@@ -23,6 +23,8 @@ function Toolbar({ onOpen, onSave, onSaveAs, onClose }: ToolbarProps) {
   const setWordWrap = useDocumentStore((s) => s.setWordWrap);
   const formatToolbar = useDocumentStore((s) => s.formatToolbar);
   const setFormatToolbar = useDocumentStore((s) => s.setFormatToolbar);
+  const viewerMode = useDocumentStore((s) => s.viewerMode);
+  const setViewerMode = useDocumentStore((s) => s.setViewerMode);
 
   return (
     <header className="flex items-center gap-1 border-b border-neutral-200 px-3 py-2 dark:border-neutral-700">
@@ -87,25 +89,41 @@ function Toolbar({ onOpen, onSave, onSaveAs, onClose }: ToolbarProps) {
         </span>
         <button
           type="button"
-          className={`${buttonClass} ${formatToolbar ? 'bg-neutral-200 dark:bg-neutral-700' : ''}`}
-          onClick={() => setFormatToolbar(!formatToolbar)}
-          aria-label="Botonera de formato"
-          aria-pressed={formatToolbar}
-          title={`Botonera de formato: ${formatToolbar ? 'visible' : 'oculta'}`}
+          className={`${buttonClass} ${viewerMode ? 'bg-neutral-200 dark:bg-neutral-700' : ''}`}
+          onClick={() => setViewerMode(!viewerMode)}
+          aria-label="Modo visor"
+          aria-pressed={viewerMode}
+          aria-keyshortcuts="Control+Shift+V Meta+Shift+V"
+          title={`Modo visor: ${viewerMode ? 'activado' : 'desactivado'} (Ctrl/Cmd+Shift+V)`}
         >
-          Aa Formato
+          👁 Visor
         </button>
-        <button
-          type="button"
-          className={`${buttonClass} ${wordWrap ? 'bg-neutral-200 dark:bg-neutral-700' : ''}`}
-          onClick={() => setWordWrap(!wordWrap)}
-          aria-label="Ajuste de línea del editor"
-          aria-pressed={wordWrap}
-          aria-keyshortcuts="Alt+Z"
-          title={`Ajuste de línea: ${wordWrap ? 'activado' : 'desactivado'} (Alt+Z)`}
-        >
-          ⤶ Ajuste
-        </button>
+        {/* Toggles que solo afectan al editor: en modo visor no aplican. */}
+        {!viewerMode && (
+          <>
+            <button
+              type="button"
+              className={`${buttonClass} ${formatToolbar ? 'bg-neutral-200 dark:bg-neutral-700' : ''}`}
+              onClick={() => setFormatToolbar(!formatToolbar)}
+              aria-label="Botonera de formato"
+              aria-pressed={formatToolbar}
+              title={`Botonera de formato: ${formatToolbar ? 'visible' : 'oculta'}`}
+            >
+              Aa Formato
+            </button>
+            <button
+              type="button"
+              className={`${buttonClass} ${wordWrap ? 'bg-neutral-200 dark:bg-neutral-700' : ''}`}
+              onClick={() => setWordWrap(!wordWrap)}
+              aria-label="Ajuste de línea del editor"
+              aria-pressed={wordWrap}
+              aria-keyshortcuts="Alt+Z"
+              title={`Ajuste de línea: ${wordWrap ? 'activado' : 'desactivado'} (Alt+Z)`}
+            >
+              ⤶ Ajuste
+            </button>
+          </>
+        )}
         <button
           type="button"
           className={buttonClass}

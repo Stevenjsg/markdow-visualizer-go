@@ -6,6 +6,8 @@ export interface ShortcutHandlers {
   onSaveAs: () => void;
   /** Cerrar el archivo actual (Ctrl/Cmd+W). */
   onClose: () => void;
+  /** Alternar el modo visor (Ctrl/Cmd+Shift+V). */
+  onToggleViewer: () => void;
 }
 
 // Atajos globales (P4.6): Ctrl/Cmd+S guardar, Ctrl/Cmd+Shift+S guardar como
@@ -45,6 +47,11 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
         // defecto; en modo navegador (wails dev) puede ganar el navegador.
         e.preventDefault();
         handlersRef.current.onClose();
+      } else if (key === 'v' && e.shiftKey) {
+        // Mismo atajo que el preview de VS Code; anula el "pegar sin formato"
+        // del WebView, que dentro del editor Markdown no aporta nada.
+        e.preventDefault();
+        handlersRef.current.onToggleViewer();
       }
     };
 

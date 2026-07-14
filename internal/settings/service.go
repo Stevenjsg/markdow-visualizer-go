@@ -34,6 +34,8 @@ type Settings struct {
 	WordWrap        bool `json:"wordWrap"`
 	// FormatToolbar controla la visibilidad de la botonera de formato del editor.
 	FormatToolbar bool `json:"formatToolbar"`
+	// ViewerMode oculta el editor y muestra solo el preview (modo lectura).
+	ViewerMode bool `json:"viewerMode"`
 }
 
 // DefaultSettings devuelve la configuración inicial de la app.
@@ -48,6 +50,7 @@ func DefaultSettings() Settings {
 		WindowMaximised: false,
 		WordWrap:        true,
 		FormatToolbar:   true,
+		ViewerMode:      false,
 	}
 }
 

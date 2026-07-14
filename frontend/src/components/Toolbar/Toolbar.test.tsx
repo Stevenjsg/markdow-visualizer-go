@@ -64,6 +64,25 @@ describe('Toolbar', () => {
     expect(useDocumentStore.getState().theme).toBe('light');
   });
 
+  it('el toggle "👁 Visor" alterna store.viewerMode y oculta los toggles del editor', async () => {
+    const user = userEvent.setup();
+    renderToolbar();
+
+    const toggle = screen.getByRole('button', { name: 'Modo visor' });
+    expect(toggle).toHaveAttribute('aria-pressed', 'false'); // edición por defecto
+    expect(screen.getByRole('button', { name: 'Botonera de formato' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Ajuste de línea del editor' })).toBeInTheDocument();
+
+    await user.click(toggle);
+    expect(useDocumentStore.getState().viewerMode).toBe(true);
+    expect(toggle).toHaveAttribute('aria-pressed', 'true');
+    // En modo visor los toggles que solo afectan al editor desaparecen.
+    expect(screen.queryByRole('button', { name: 'Botonera de formato' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Ajuste de línea del editor' }),
+    ).not.toBeInTheDocument();
+  });
+
   it('el toggle "Aa Formato" alterna store.formatToolbar y su aria-pressed', async () => {
     const user = userEvent.setup();
     renderToolbar();

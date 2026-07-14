@@ -94,6 +94,7 @@ function App() {
         }
         useDocumentStore.getState().setWordWrap(cfg.wordWrap);
         useDocumentStore.getState().setFormatToolbar(cfg.formatToolbar);
+        useDocumentStore.getState().setViewerMode(cfg.viewerMode);
 
         // CLI (`mrw archivo.md`): el archivo pedido por la línea de comandos
         // tiene prioridad sobre la restauración del último archivo abierto.
@@ -140,18 +141,21 @@ function App() {
       });
   }, []);
 
-  // RF5 (P4.5): persistir tema, ajuste de línea y botonera de formato cuando
-  // el usuario los cambia.
+  // RF5 (P4.5): persistir tema, ajuste de línea, botonera de formato y modo
+  // visor cuando el usuario los cambia.
   const wordWrap = useDocumentStore((s) => s.wordWrap);
   const formatToolbar = useDocumentStore((s) => s.formatToolbar);
+  const viewerMode = useDocumentStore((s) => s.viewerMode);
   useEffect(() => {
     if (!settingsLoaded.current) return;
     LoadSettings()
       .then((cfg) =>
-        SaveSettings(settings.Settings.createFrom({ ...cfg, theme, wordWrap, formatToolbar })),
+        SaveSettings(
+          settings.Settings.createFrom({ ...cfg, theme, wordWrap, formatToolbar, viewerMode }),
+        ),
       )
       .catch((err: unknown) => console.error('SaveSettings falló:', err));
-  }, [theme, wordWrap, formatToolbar]);
+  }, [theme, wordWrap, formatToolbar, viewerMode]);
 
   // RF4 (P4.4): el backend refleja isDirty en el título de la ventana y lo
   // usa en OnBeforeClose para decidir si interceptar el cierre.
@@ -266,12 +270,17 @@ function App() {
     }
   };
 
-  // P4.6: atajos Ctrl/Cmd+S, Ctrl/Cmd+Shift+S, Ctrl/Cmd+O y Ctrl/Cmd+W.
+  // P4.6: atajos Ctrl/Cmd+S, Ctrl/Cmd+Shift+S, Ctrl/Cmd+O, Ctrl/Cmd+W y
+  // Ctrl/Cmd+Shift+V (modo visor).
   useKeyboardShortcuts({
     onOpen: handleOpen,
     onSave: handleSave,
     onSaveAs: handleSaveAs,
     onClose: handleCloseFile,
+    onToggleViewer: () => {
+      const s = useDocumentStore.getState();
+      s.setViewerMode(!s.viewerMode);
+    },
   });
 
   // RF4: acciones del modal de cierre. Guardar solo cierra si el guardado
@@ -299,26 +308,31 @@ function App() {
         />
 
         <main ref={mainRef} className="flex min-h-0 flex-1">
-          <section
-            aria-label="Editor"
-            style={{ width: `${splitRatio * 100}%` }}
-            className="min-w-0 overflow-auto"
-          >
-            <Editor />
-          </section>
-          <div
-            role="separator"
-            aria-orientation="vertical"
-            aria-label="Redimensionar paneles (flechas izquierda/derecha)"
-            aria-valuemin={20}
-            aria-valuemax={80}
-            aria-valuenow={Math.round(splitRatio * 100)}
-            tabIndex={0}
-            title="Arrastra o usa las flechas para redimensionar"
-            onPointerDown={onDividerPointerDown}
-            onKeyDown={onDividerKeyDown}
-            className="w-1 shrink-0 cursor-col-resize bg-neutral-200 transition-colors hover:bg-sky-500 focus-visible:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500 dark:bg-neutral-700 dark:hover:bg-sky-500"
-          />
+          {/* Modo visor: solo el preview, a todo el ancho; el editor no se monta. */}
+          {!viewerMode && (
+            <>
+              <section
+                aria-label="Editor"
+                style={{ width: `${splitRatio * 100}%` }}
+                className="min-w-0 overflow-auto"
+              >
+                <Editor />
+              </section>
+              <div
+                role="separator"
+                aria-orientation="vertical"
+                aria-label="Redimensionar paneles (flechas izquierda/derecha)"
+                aria-valuemin={20}
+                aria-valuemax={80}
+                aria-valuenow={Math.round(splitRatio * 100)}
+                tabIndex={0}
+                title="Arrastra o usa las flechas para redimensionar"
+                onPointerDown={onDividerPointerDown}
+                onKeyDown={onDividerKeyDown}
+                className="w-1 shrink-0 cursor-col-resize bg-neutral-200 transition-colors hover:bg-sky-500 focus-visible:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500 dark:bg-neutral-700 dark:hover:bg-sky-500"
+              />
+            </>
+          )}
           <section
             aria-label="Vista previa"
             className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden"

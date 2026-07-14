@@ -31,6 +31,8 @@ export interface DocumentState {
   wordWrap: boolean;
   /** Visibilidad de la botonera de formato del editor (persistida en settings). */
   formatToolbar: boolean;
+  /** Modo visor: oculta el editor y muestra solo el preview (persistido en settings). */
+  viewerMode: boolean;
 
   setContent: (content: string) => void;
   setHtml: (html: string) => void;
@@ -43,6 +45,7 @@ export interface DocumentState {
   setStatus: (status: StatusMessage | null) => void;
   setWordWrap: (wordWrap: boolean) => void;
   setFormatToolbar: (formatToolbar: boolean) => void;
+  setViewerMode: (viewerMode: boolean) => void;
 }
 
 // Límites del divisor: ningún panel baja del 20% del ancho.
@@ -59,6 +62,7 @@ export const useDocumentStore = create<DocumentState>()((set) => ({
   status: null,
   wordWrap: true,
   formatToolbar: true,
+  viewerMode: false,
 
   // Regla de negocio del estado: escribir marca el documento como sucio…
   setContent: (content) => set({ content, isDirty: true }),
@@ -73,4 +77,5 @@ export const useDocumentStore = create<DocumentState>()((set) => ({
   setStatus: (status) => set({ status }),
   setWordWrap: (wordWrap) => set({ wordWrap }),
   setFormatToolbar: (formatToolbar) => set({ formatToolbar }),
+  setViewerMode: (viewerMode) => set({ viewerMode }),
 }));
