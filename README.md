@@ -105,9 +105,19 @@ Requisitos y particularidades por plataforma:
 El workflow de CI ([`.github/workflows/ci.yml`](./.github/workflows/ci.yml)) compila
 en las tres plataformas en cada push, para detectar problemas multiplataforma pronto.
 
-### CLI `mrw` (Windows)
+### Instalar el CLI `mrw`
 
-Instala el comando `mrw` para abrir MarkView desde la terminal, al estilo de `code`:
+Instala el comando `mrw` para abrir MarkView desde la terminal, al estilo de `code`.
+En una terminal **nueva** tras instalar:
+
+```bash
+mrw notas.md   # abre notas.md; si no existe, abre un buffer con esa ruta que se crea al guardar
+mrw            # abre MarkView vacío
+```
+
+`mrw` no bloquea la terminal y cada invocación abre una ventana independiente.
+
+#### Windows
 
 ```powershell
 wails build                 # genera build/bin/MarkView.exe
@@ -117,14 +127,31 @@ wails build                 # genera build/bin/MarkView.exe
 En una terminal **nueva**:
 
 ```powershell
-mrw notas.md      # abre notas.md; si no existe, abre un buffer con esa ruta que se crea al guardar
-mrw               # abre MarkView vacío
-mrw -v notas.md   # abre notas.md en modo visor (solo preview; también --view)
+mrw notas.md   # abre notas.md; si no existe, abre un buffer con esa ruta que se crea al guardar
+mrw            # abre MarkView vacío
 ```
 
 `mrw` no bloquea la terminal y cada invocación abre una ventana independiente.
 Para revertir: `.\scripts\install-cli.ps1 -Uninstall`. Con un binario de un
 release descargado: `.\scripts\install-cli.ps1 -SourceDir C:\ruta\a\la\descarga`.
+
+#### Linux
+
+```bash
+wails build -tags webkit2_41   # genera build/bin/MarkView (WebKitGTK 4.1)
+./scripts/install-cli.sh       # instala en ~/.local/bin + icono y lanzador .desktop del menú
+```
+
+El script instala el binario `MarkView`, el comando `mrw` y una entrada en el menú
+de aplicaciones, todo por usuario (sin `sudo`). Si `~/.local/bin` no está en tu
+`PATH`, el script te avisa cómo añadirlo. Para revertir:
+`./scripts/install-cli.sh --uninstall`. Con un binario descargado de un release:
+`./scripts/install-cli.sh --source-dir ~/ruta/a/la/descarga`.
+
+#### macOS
+
+Copia el bundle generado por `wails build` (`build/bin/MarkView.app`) a `/Applications`
+y ábrelo desde Launchpad. (El shim `mrw` para macOS aún no está automatizado.)
 
 ### Lint y formato
 
